@@ -1,0 +1,10 @@
+# Nothing personal belongs in this repo. It is served publicly.
+AGENT.md
+newborn-care-plan.html
+*.local.json
+private/
+logs/
+*.csv
+.env
+.DS_Store
+Thumbs.db

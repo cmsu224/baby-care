@@ -1,0 +1,163 @@
+{
+  "version": 3,
+  "updated": "2026-08-14",
+  "targets": {
+    "perFeedMl": [68, 90],
+    "feedsPerDay": 9,
+    "pumpsPerDay": 6,
+    "wetPerDay": 6,
+    "dirtyPerDay": 3,
+    "maxGapMin": 180,
+    "momWaterL": 3,
+    "momExtraCal": 500
+  },
+  "profiles": {
+    "catchup": {
+      "label": "Catch-up",
+      "blocks": [
+        { "t": "07:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water before you start", "tone": "self" },
+          { "who": "Dad", "do": "Change his diaper first - a cool wipe wakes him up to feed properly", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, 10-15 min each. Switch the moment he drifts off." },
+          { "who": "Dad", "do": "Top-up bottle to target, then burp and hold him upright 15 min" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" },
+          { "who": "Dad", "do": "Vitamin D drops - 400 IU, once a day, easiest to remember now", "tone": "care" }
+        ]},
+        { "t": "10:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water - every feed, no exceptions", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper first, then again between sides if he drifts", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" },
+          { "who": "Dad", "do": "Wash and sterilise bottles and pump parts", "tone": "care" }
+        ]},
+        { "t": "13:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Water, and eat a real meal - you need about 500 extra calories a day", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "16:00", "type": "BOTTLE", "alarm": false, "actions": [
+          { "who": "Dad", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed, paced. No breast this round." },
+          { "who": "Mom", "do": "Water and a snack", "tone": "self" },
+          { "who": "Mom", "do": "Pump 15 min, both sides, then actually rest" }
+        ]},
+        { "t": "18:30", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water", "tone": "self" },
+          { "who": "Dad", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, 10-15 min each" },
+          { "who": "Dad", "do": "Top-up bottle to target, then burp and settle him" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "21:00", "type": "BOTTLE", "alarm": false, "actions": [
+          { "who": "Dad", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed, paced" },
+          { "who": "Dad", "do": "Make up 3 bottles. Cooler bag with an ice pack by the bed.", "tone": "care" },
+          { "who": "Dad", "do": "Wash and sterilise everything now, not at 2 AM", "tone": "care" },
+          { "who": "Mom", "do": "Big glass of water on the nightstand", "tone": "self" },
+          { "who": "Mom", "do": "Go to bed now. You are off until 2:00 AM.", "tone": "rest" }
+        ]},
+        { "t": "23:30", "type": "BOTTLE", "alarm": true, "actions": [
+          { "who": "Dad", "do": "Change only if soiled - not worth waking him fully", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed, paced. Dim light, no talking." },
+          { "who": "Dad", "do": "Straight back down. Leave the bottles until morning." }
+        ]},
+        { "t": "02:00", "type": "FULL", "alarm": true, "actions": [
+          { "who": "Mom", "do": "Water first - you will be thirstier than you expect", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper - it wakes him enough to feed properly", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides. This is the one that matters most for supply." },
+          { "who": "Dad", "do": "Hand over and sleep until 7:00 AM.", "tone": "rest" }
+        ]},
+        { "t": "04:30", "type": "BOTTLE", "alarm": true, "actions": [
+          { "who": "Mom", "do": "Change only if soiled", "tone": "care" },
+          { "who": "Mom", "do": "Bottle feed, paced. Straight back down." },
+          { "who": "Mom", "do": "Water again before you lie down", "tone": "self" }
+        ]}
+      ]
+    },
+    "wfh": {
+      "label": "Dad working from home",
+      "blocks": [
+        { "t": "07:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Dad", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed to target before the work day starts" },
+          { "who": "Dad", "do": "Vitamin D drops - 400 IU, once a day", "tone": "care" },
+          { "who": "Mom", "do": "Full glass of water", "tone": "self" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "10:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water before you start", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper first, then again between sides if he drifts", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "13:00", "type": "BOTTLE", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Water, and eat a real meal - about 500 extra calories a day", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Mom", "do": "Bottle feed, paced" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "16:00", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" },
+          { "who": "Dad", "do": "Wash and sterilise bottles and pump parts on your next break", "tone": "care" }
+        ]},
+        { "t": "18:30", "type": "FULL", "alarm": false, "actions": [
+          { "who": "Mom", "do": "Full glass of water", "tone": "self" },
+          { "who": "Dad", "do": "Change his diaper first - work is over, you are on", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, 10-15 min each" },
+          { "who": "Dad", "do": "Top-up bottle to target, then burp and settle him" },
+          { "who": "Mom", "do": "Pump 15 min, both sides" }
+        ]},
+        { "t": "21:00", "type": "BOTTLE", "alarm": false, "actions": [
+          { "who": "Dad", "do": "Change his diaper first", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed, paced" },
+          { "who": "Dad", "do": "Make up 3 bottles. Cooler bag with an ice pack by the bed.", "tone": "care" },
+          { "who": "Dad", "do": "Wash and sterilise everything now, not at 2 AM", "tone": "care" },
+          { "who": "Mom", "do": "Big glass of water on the nightstand", "tone": "self" },
+          { "who": "Mom", "do": "Go to bed now. You are off until 2:00 AM.", "tone": "rest" }
+        ]},
+        { "t": "23:30", "type": "BOTTLE", "alarm": true, "actions": [
+          { "who": "Dad", "do": "Change only if soiled - not worth waking him fully", "tone": "care" },
+          { "who": "Dad", "do": "Bottle feed, paced. Dim light, no talking." },
+          { "who": "Dad", "do": "Straight back down. Leave the bottles until morning." }
+        ]},
+        { "t": "02:00", "type": "FULL", "alarm": true, "actions": [
+          { "who": "Mom", "do": "Water first - you will be thirstier than you expect", "tone": "self" },
+          { "who": "Mom", "do": "Change his diaper - it wakes him enough to feed properly", "tone": "care" },
+          { "who": "Mom", "do": "Breastfeed both sides, then top-up bottle to target" },
+          { "who": "Mom", "do": "Pump 15 min, both sides. This is the one that matters most for supply." },
+          { "who": "Dad", "do": "Hand over and sleep until 7:00 AM.", "tone": "rest" }
+        ]},
+        { "t": "04:30", "type": "BOTTLE", "alarm": true, "actions": [
+          { "who": "Mom", "do": "Change only if soiled", "tone": "care" },
+          { "who": "Mom", "do": "Bottle feed, paced. Straight back down." },
+          { "who": "Mom", "do": "Water again before you lie down", "tone": "self" }
+        ]}
+      ]
+    }
+  },
+  "days": [
+    { "date": "2026-08-14", "n": 11, "profile": "catchup", "note": "Catch-up starts today. Offer the full amount every feed and let him leave what he does not want. Call the office and ask for a weight-only nurse check before Monday." },
+    { "date": "2026-08-15", "n": 12, "profile": "catchup", "note": "Both parents home. Nine feeds, no gap over 3 hours, day or night. Wake him if he sleeps through." },
+    { "date": "2026-08-16", "n": 13, "profile": "catchup", "note": "Last full day with both parents home. Weigh naked, same time, same scale. Write the number down for tomorrow." },
+    { "date": "2026-08-17", "n": 14, "profile": "wfh", "note": "Appointment 1:15 PM. Bring the question list. Dad back to work from home today." },
+    { "date": "2026-08-18", "n": 15, "profile": "wfh", "note": "Follow whatever volume the pediatrician set yesterday. If they raised it, this schedule needs updating." },
+    { "date": "2026-08-19", "n": 16, "profile": "wfh", "note": "Watch that the night feeds are still happening now that the work week has started." },
+    { "date": "2026-08-20", "n": 17, "profile": "wfh", "note": "If he is gaining 20-30 g a day, the 4:30 AM feed can start to slide later. If not, hold the schedule." },
+    { "date": "2026-08-21", "n": 18, "profile": "wfh", "note": "Growth spurt window opens - he may want more than target for a few days. Give it to him." },
+    { "date": "2026-08-22", "n": 19, "profile": "catchup", "note": "Weekend. Both parents home - use it to bank sleep, not to catch up on chores." },
+    { "date": "2026-08-23", "n": 20, "profile": "catchup", "note": "Weekly weight check at home. Compare against last Sunday, not against yesterday." },
+    { "date": "2026-08-24", "n": 21, "profile": "wfh", "note": "Three weeks old. If weight is on track, talk to the pediatrician about dropping one pump." },
+    { "date": "2026-08-25", "n": 22, "profile": "wfh", "note": "Cord stump should be long gone. If anything is still weeping or smells, call." },
+    { "date": "2026-08-26", "n": 23, "profile": "wfh", "note": "Check in on Mom, properly. Ask the question and wait for the real answer." },
+    { "date": "2026-08-27", "n": 24, "profile": "wfh", "note": "Steady state. This schedule only stays useful if it is still true - change it when it stops being." },
+    { "date": "2026-08-28", "n": 25, "profile": "wfh", "note": "If he is consistently over target and gaining well, this is the week to stretch the night gap." },
+    { "date": "2026-08-29", "n": 26, "profile": "catchup", "note": "Weekend. Review the week in Huckleberry - are the nine feeds actually happening?" },
+    { "date": "2026-08-30", "n": 27, "profile": "catchup", "note": "Weekly naked weight. Expect roughly 150-210 g over the week." },
+    { "date": "2026-08-31", "n": 28, "profile": "wfh", "note": "Four weeks. Time to rebuild this schedule around who he is now rather than who he was at day 11." }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Feeding Board",
+  "short_name": "Board",
+  "description": "Always-on newborn feeding schedule board.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0C1312",
+  "theme_color": "#0C1312",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
