@@ -1,1393 +1,1978 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Feeding Board</title>
-<meta name="description" content="Always-on newborn feeding schedule board.">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#070C0C">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<style>
-:root {
-  --ink:        #0F1A19;
-  --muted:      #5E706D;
-  --faint:      #8A9A97;
-  --accent:     #0E7B71;
-  --accent-ink: #0A5A53;
-  --amber:      #9A5F16;
-  --alert:      #B3352A;
-  --ok:         #2E6B3E;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Feeding Board</title>
+  <meta name="description" content="Always-on newborn feeding schedule board.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#070C0C">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --ink: #0F1A19;
+      --muted: #5E706D;
+      --faint: #8A9A97;
+      --accent: #0E7B71;
+      --accent-ink: #0A5A53;
+      --amber: #9A5F16;
+      --alert: #B3352A;
+      --ok: #2E6B3E;
 
-  --bg-1: #EDF4F2;
-  --bg-2: #F6F9F8;
-  --glass:  rgba(255,255,255,.72);
-  --glass-2: rgba(255,255,255,.50);
-  --stroke: rgba(15,26,25,.10);
-  --stroke-2: rgba(15,26,25,.06);
-  --shadow: 0 1px 2px rgba(15,26,25,.05), 0 8px 24px rgba(15,26,25,.07);
+      --bg-1: #EDF4F2;
+      --bg-2: #F6F9F8;
+      --glass: rgba(255, 255, 255, .72);
+      --glass-2: rgba(255, 255, 255, .50);
+      --stroke: rgba(15, 26, 25, .10);
+      --stroke-2: rgba(15, 26, 25, .06);
+      --shadow: 0 1px 2px rgba(15, 26, 25, .05), 0 8px 24px rgba(15, 26, 25, .07);
 
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
-  --r: 20px; --r-sm: 13px; --r-xs: 9px;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+      --r: 20px;
+      --r-sm: 13px;
+      --r-xs: 9px;
 
-  --pulse-bg: transparent;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ink: #EAF1EF; --muted: #93A6A3; --faint: #6C7D7A;
-    --accent: #5FD3C4; --accent-ink: #8FE4D8;
-    --amber: #E0AE6A; --alert: #FF8D80; --ok: #7FD08F;
-    --bg-1: #102523; --bg-2: #060B0B;
-    --glass: rgba(30,45,43,.55); --glass-2: rgba(30,45,43,.34);
-    --stroke: rgba(255,255,255,.10); --stroke-2: rgba(255,255,255,.05);
-    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.40);
-  }
-}
-:root[data-theme="dark"] {
-  --ink: #EAF1EF; --muted: #93A6A3; --faint: #6C7D7A;
-  --accent: #5FD3C4; --accent-ink: #8FE4D8;
-  --amber: #E0AE6A; --alert: #FF8D80; --ok: #7FD08F;
-  --bg-1: #102523; --bg-2: #060B0B;
-  --glass: rgba(30,45,43,.55); --glass-2: rgba(30,45,43,.34);
-  --stroke: rgba(255,255,255,.10); --stroke-2: rgba(255,255,255,.05);
-  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.40);
-}
-:root[data-theme="light"] {
-  --ink: #0F1A19; --muted: #5E706D; --faint: #8A9A97;
-  --accent: #0E7B71; --accent-ink: #0A5A53;
-  --amber: #9A5F16; --alert: #B3352A; --ok: #2E6B3E;
-  --bg-1: #EDF4F2; --bg-2: #F6F9F8;
-  --glass: rgba(255,255,255,.72); --glass-2: rgba(255,255,255,.50);
-  --stroke: rgba(15,26,25,.10); --stroke-2: rgba(15,26,25,.06);
-  --shadow: 0 1px 2px rgba(15,26,25,.05), 0 8px 24px rgba(15,26,25,.07);
-}
+      --pulse-bg: transparent;
+    }
 
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html, body { margin: 0; padding: 0; height: 100%; }
-body {
-  background: var(--pulse-bg, transparent), radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
-  color: var(--ink);
-  font-family: var(--sans);
-  line-height: 1.45;
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  transition: background-color .8s ease;
-}
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --ink: #EAF1EF;
+        --muted: #93A6A3;
+        --faint: #6C7D7A;
+        --accent: #5FD3C4;
+        --accent-ink: #8FE4D8;
+        --amber: #E0AE6A;
+        --alert: #FF8D80;
+        --ok: #7FD08F;
+        --bg-1: #102523;
+        --bg-2: #060B0B;
+        --glass: rgba(30, 45, 43, .55);
+        --glass-2: rgba(30, 45, 43, .34);
+        --stroke: rgba(255, 255, 255, .10);
+        --stroke-2: rgba(255, 255, 255, .05);
+        --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 30px rgba(0, 0, 0, .40);
+      }
+    }
 
-/* Ambient breathing pulsing glow when feeding is active */
-body.feed-active::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 35%, transparent) 0%, color-mix(in srgb, var(--accent) 12%, transparent) 55%, transparent 85%);
-  animation: feedGlowPulse 2.8s ease-in-out infinite;
-}
+    :root[data-theme="dark"] {
+      --ink: #EAF1EF;
+      --muted: #93A6A3;
+      --faint: #6C7D7A;
+      --accent: #5FD3C4;
+      --accent-ink: #8FE4D8;
+      --amber: #E0AE6A;
+      --alert: #FF8D80;
+      --ok: #7FD08F;
+      --bg-1: #102523;
+      --bg-2: #060B0B;
+      --glass: rgba(30, 45, 43, .55);
+      --glass-2: rgba(30, 45, 43, .34);
+      --stroke: rgba(255, 255, 255, .10);
+      --stroke-2: rgba(255, 255, 255, .05);
+      --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 30px rgba(0, 0, 0, .40);
+    }
 
-@keyframes feedGlowPulse {
-  0%, 100% {
-    opacity: 0.25;
-    transform: scale(0.97);
-  }
-  50% {
-    opacity: 0.92;
-    transform: scale(1.03);
-  }
-}
+    :root[data-theme="light"] {
+      --ink: #0F1A19;
+      --muted: #5E706D;
+      --faint: #8A9A97;
+      --accent: #0E7B71;
+      --accent-ink: #0A5A53;
+      --amber: #9A5F16;
+      --alert: #B3352A;
+      --ok: #2E6B3E;
+      --bg-1: #EDF4F2;
+      --bg-2: #F6F9F8;
+      --glass: rgba(255, 255, 255, .72);
+      --glass-2: rgba(255, 255, 255, .50);
+      --stroke: rgba(15, 26, 25, .10);
+      --stroke-2: rgba(15, 26, 25, .06);
+      --shadow: 0 1px 2px rgba(15, 26, 25, .05), 0 8px 24px rgba(15, 26, 25, .07);
+    }
 
-:root[data-theme="dark"] body.feed-active::before,
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body.feed-active::before {
-    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 42%, transparent) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 60%, transparent 90%);
-  }
-}
+    * {
+      box-sizing: border-box;
+    }
 
-.wrap { max-width: 100%; margin: 0 auto; padding: .35rem .8rem 1.4rem; }
-.num { font-variant-numeric: tabular-nums; }
+    [hidden] {
+      display: none !important;
+    }
 
-.glass {
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(22px) saturate(1.5);
-  backdrop-filter: blur(22px) saturate(1.5);
-  border: 1px solid var(--stroke);
-  border-radius: var(--r);
-  box-shadow: var(--shadow);
-}
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
 
-/* ========== HERO PANELS: clock + next up ========== */
-/* These two panels dominate the screen so they're visible across the room */
-.hero-wrap {
-  display: flex; flex-direction: column; gap: .55rem;
-  width: calc(100% + 1.6rem);
-  margin-left: -.8rem;
-  margin-right: -.8rem;
-  margin-bottom: .8rem;
-  padding: 0;
-}
+    body {
+      background: var(--pulse-bg, transparent), radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.45;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      transition: background-color .8s ease;
+    }
 
-.hero-clock {
-  width: 100%; text-align: center;
-  padding: .5rem 0 .4rem;
-  border-left: none; border-right: none;
-  border-radius: 0;
-  overflow: hidden;
-}
-.hero-time-box {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  width: 100%;
-  padding: 0;
-  margin: 0 auto;
-  white-space: nowrap;
-  line-height: .86;
-}
-.hero-clock .hero-time {
-  font-size: 34vw;
-  font-weight: 850; font-variant-numeric: tabular-nums;
-  letter-spacing: -.055em; line-height: .86;
-  color: var(--ink);
-  display: inline-block;
-}
-.hero-clock .hero-ampm {
-  font-size: 11vw;
-  font-weight: 750; color: var(--muted);
-  margin-left: .04em; letter-spacing: -.02em;
-  display: inline-block;
-}
-.hero-clock .hero-date {
-  font-size: clamp(.72rem, 2.8vw, 1.4rem);
-  color: var(--muted); font-weight: 600;
-  margin-top: .2rem; letter-spacing: .02em;
-}
+    /* Ambient breathing pulsing glow when feeding is active */
+    body.feed-active::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 35%, transparent) 0%, color-mix(in srgb, var(--accent) 12%, transparent) 55%, transparent 85%);
+      animation: feedGlowPulse 2.8s ease-in-out infinite;
+    }
 
-/* Distinct shaded styling for Next Up */
-.hero-next {
-  width: 100%; text-align: center;
-  padding: .9rem .6rem .85rem;
-  border-left: none; border-right: none;
-  border-radius: 0;
-  background: linear-gradient(160deg, #E2EFF2 0%, #D4E8EB 100%);
-  border-top: 1px solid rgba(14, 123, 113, 0.28);
-  border-bottom: 1px solid rgba(14, 123, 113, 0.28);
-  box-shadow: 0 4px 18px rgba(14, 123, 113, 0.08), var(--shadow);
-}
-.hero-next .hero-label {
-  font-size: clamp(.65rem, 2.2vw, .95rem);
-  letter-spacing: .15em; text-transform: uppercase;
-  color: #0A5A53; font-weight: 800;
-  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  background: rgba(14, 123, 113, 0.12);
-  padding: .2rem .75rem;
-  border-radius: 999px;
-  margin-bottom: .25rem;
-}
-.hero-next .hero-countdown {
-  font-size: clamp(3.5rem, 20vw, 11rem);
-  font-weight: 850; font-variant-numeric: tabular-nums;
-  letter-spacing: -.05em; line-height: .95;
-  margin: .15rem 0;
-  color: #0B4A45;
-}
-.hero-next .hero-what {
-  font-size: clamp(.82rem, 2.8vw, 1.5rem);
-  color: #2D423F; font-weight: 550;
-  margin: .1rem 0 0;
-}
-.hero-next .hero-what b { color: #0C1E1C; font-weight: 750; }
+    @keyframes feedGlowPulse {
 
-.hero-next.soon {
-  background: linear-gradient(160deg, #FBF1E2 0%, #F5E4CB 100%);
-  border-color: rgba(154, 95, 22, 0.45);
-}
-.hero-next.soon .hero-label {
-  color: #7D4C0E;
-  background: rgba(154, 95, 22, 0.15);
-}
-.hero-next.soon .hero-countdown { color: #9A5F16; }
+      0%,
+      100% {
+        opacity: 0.25;
+        transform: scale(0.97);
+      }
 
-.hero-next.late {
-  background: linear-gradient(160deg, #FCE8E6 0%, #F8D3D0 100%);
-  border-color: rgba(179, 53, 42, 0.55);
-  box-shadow: var(--shadow), 0 0 46px color-mix(in srgb, var(--alert) 26%, transparent);
-  animation: breathe 1.8s ease-in-out infinite;
-}
-.hero-next.late .hero-label {
-  color: #8C1F16;
-  background: rgba(179, 53, 42, 0.18);
-}
-.hero-next.late .hero-countdown { color: #B3352A; }
+      50% {
+        opacity: 0.92;
+        transform: scale(1.03);
+      }
+    }
 
-:root[data-theme="dark"] .hero-next,
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hero-next {
-    background: linear-gradient(160deg, #122B2A 0%, #0A1D1C 100%);
-    border-color: rgba(95, 211, 196, 0.35);
-    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.4), 0 0 15px rgba(95, 211, 196, 0.08);
-  }
-  :root:not([data-theme="light"]) .hero-next .hero-label {
-    color: #8FE4D8;
-    background: rgba(95, 211, 196, 0.18);
-  }
-  :root:not([data-theme="light"]) .hero-next .hero-countdown {
-    color: #6EE5D6;
-  }
-  :root:not([data-theme="light"]) .hero-next .hero-what {
-    color: #A8C4C0;
-  }
-  :root:not([data-theme="light"]) .hero-next .hero-what b {
-    color: #EAF1EF;
-  }
-  :root:not([data-theme="light"]) .hero-next.soon {
-    background: linear-gradient(160deg, #2D2213 0%, #1F170B 100%);
-    border-color: rgba(224, 174, 106, 0.5);
-  }
-  :root:not([data-theme="light"]) .hero-next.soon .hero-label {
-    color: #E0AE6A;
-    background: rgba(224, 174, 106, 0.2);
-  }
-  :root:not([data-theme="light"]) .hero-next.soon .hero-countdown {
-    color: #E0AE6A;
-  }
-  :root:not([data-theme="light"]) .hero-next.late {
-    background: linear-gradient(160deg, #331310 0%, #240B09 100%);
-    border-color: rgba(255, 141, 128, 0.6);
-  }
-  :root:not([data-theme="light"]) .hero-next.late .hero-label {
-    color: #FF8D80;
-    background: rgba(255, 141, 128, 0.22);
-  }
-  :root:not([data-theme="light"]) .hero-next.late .hero-countdown {
-    color: #FF8D80;
-  }
-}
-:root[data-theme="dark"] .hero-next .hero-label {
-  color: #8FE4D8;
-  background: rgba(95, 211, 196, 0.18);
-}
-:root[data-theme="dark"] .hero-next .hero-countdown {
-  color: #6EE5D6;
-}
-:root[data-theme="dark"] .hero-next .hero-what {
-  color: #A8C4C0;
-}
-:root[data-theme="dark"] .hero-next .hero-what b {
-  color: #EAF1EF;
-}
-:root[data-theme="dark"] .hero-next.soon {
-  background: linear-gradient(160deg, #2D2213 0%, #1F170B 100%);
-  border-color: rgba(224, 174, 106, 0.5);
-}
-:root[data-theme="dark"] .hero-next.soon .hero-label {
-  color: #E0AE6A;
-  background: rgba(224, 174, 106, 0.2);
-}
-:root[data-theme="dark"] .hero-next.soon .hero-countdown {
-  color: #E0AE6A;
-}
-:root[data-theme="dark"] .hero-next.late {
-  background: linear-gradient(160deg, #331310 0%, #240B09 100%);
-  border-color: rgba(255, 141, 128, 0.6);
-}
-:root[data-theme="dark"] .hero-next.late .hero-label {
-  color: #FF8D80;
-  background: rgba(255, 141, 128, 0.22);
-}
-:root[data-theme="dark"] .hero-next.late .hero-countdown {
-  color: #FF8D80;
-}
+    :root[data-theme="dark"] body.feed-active::before,
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) body.feed-active::before {
+        background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 42%, transparent) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 60%, transparent 90%);
+      }
+    }
 
-@keyframes breathe { 0%,100% { opacity: 1 } 50% { opacity: .78 } }
-@media (prefers-reduced-motion: reduce) { .hero-next.late { animation: none } body.feed-active { animation: none; } }
+    .wrap {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: .35rem .8rem 1.4rem;
+    }
 
-/* Landscape: put clock and next-up side by side */
-@media (orientation: landscape) and (min-width: 500px) {
-  .hero-wrap {
-    flex-direction: row; gap: .65rem;
-    width: 100%;
-    margin-left: 0; margin-right: 0;
-    align-items: stretch;
-  }
-  .hero-clock, .hero-next {
-    flex: 1; min-width: 0;
-    border-radius: var(--r);
-    border: 1px solid var(--stroke);
-  }
-  .hero-clock {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-  .hero-clock .hero-time { font-size: clamp(3rem, 14vw, 11rem); }
-  .hero-clock .hero-ampm { font-size: clamp(1rem, 3.5vw, 2.5rem); }
-  .hero-next .hero-countdown { font-size: clamp(2.5rem, 12vw, 9rem); }
-  .hero-next {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-}
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
 
-/* ---------- header ---------- */
-header { display: flex; align-items: center; gap: .55rem; padding: .5rem .8rem .3rem; }
-.dayn { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
-.datestr { color: var(--muted); font-size: .84rem; }
-header .spacer { flex: 1; }
-.clocknow { display: none; }
-.dot { width: .44rem; height: .44rem; border-radius: 50%; background: var(--ok); flex: none; opacity: .9; }
-.dot.off { background: var(--amber); }
+    .glass {
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(22px) saturate(1.5);
+      backdrop-filter: blur(22px) saturate(1.5);
+      border: 1px solid var(--stroke);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
 
-/* ---------- now panel ---------- */
-.now { padding: 1.15rem 1.1rem; margin-bottom: .7rem; }
-.now.active {
-  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
-  box-shadow: var(--shadow), 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent),
-              0 0 45px color-mix(in srgb, var(--accent) 30%, transparent);
-  animation: cardPulse 2.8s ease-in-out infinite;
-}
-@keyframes cardPulse {
-  0%, 100% {
-    box-shadow: var(--shadow), 0 0 0 1.5px color-mix(in srgb, var(--accent) 30%, transparent),
-                0 0 24px color-mix(in srgb, var(--accent) 18%, transparent);
-  }
-  50% {
-    box-shadow: var(--shadow), 0 0 0 3px color-mix(in srgb, var(--accent) 65%, transparent),
-                0 0 55px color-mix(in srgb, var(--accent) 42%, transparent);
-  }
-}
-.eyebrow {
-  font-size: .66rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--faint); font-weight: 600; display: flex; align-items: center; gap: .4rem;
-}
-.now.active .eyebrow { color: var(--accent); }
-.nowtitle {
-  font-size: 2.05rem; line-height: 1.08; font-weight: 700;
-  letter-spacing: -.025em; margin: .5rem 0 .1rem; text-wrap: balance;
-}
-.now.active .nowtitle { color: var(--accent-ink); }
-.nowsub { margin: 0; color: var(--muted); font-size: .92rem; }
+    /* ========== HERO PANELS: clock + next up ========== */
+    /* These two panels dominate the screen so they're visible across the room */
+    .hero-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      width: calc(100% + 1.6rem);
+      margin-left: -.8rem;
+      margin-right: -.8rem;
+      margin-bottom: .8rem;
+      padding: 0;
+    }
 
-/* Action list */
-.acts { list-style: none; margin: .95rem 0 0; padding: 0; }
-.acts li {
-  display: grid; grid-template-columns: 3.5rem 1fr; gap: .7rem;
-  align-items: start; padding: .5rem 0; border-top: 1px solid var(--stroke-2);
-}
-.acts li:first-child { border-top: 0; padding-top: .15rem; }
-.who {
-  font-size: .66rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
-  padding: .25rem 0; border-radius: var(--r-xs); text-align: center;
-  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-ink);
-}
-.who.dad { background: color-mix(in srgb, var(--amber) 20%, transparent); color: var(--amber); }
-.acts li[data-tone="rest"] .who { background: var(--glass-2); color: var(--faint); }
-.acts li[data-tone="rest"] .doing { color: var(--muted); font-style: italic; }
-.acts li[data-tone="self"] .doing { color: var(--accent-ink); }
-.acts li[data-tone] .doing::before {
-  content: ""; display: inline-block; width: .36rem; height: .36rem;
-  border-radius: 50%; margin-right: .5rem; vertical-align: .1em;
-}
-.acts li[data-tone="care"] .doing::before { background: var(--faint); }
-.acts li[data-tone="self"] .doing::before { background: var(--accent); }
-.acts li[data-tone="rest"] .doing::before { background: var(--faint); opacity: .5; }
-.doing { font-size: .96rem; line-height: 1.35; }
+    .hero-clock {
+      width: 100%;
+      text-align: center;
+      padding: .5rem 0 .4rem;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      overflow: hidden;
+    }
 
-/* ========== ACTIVE MODE: When stuff is happening RIGHT NOW ========== */
-body.now-active .hero-wrap {
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-  margin-bottom: .45rem;
-}
-body.now-active .hero-clock {
-  padding: .35rem .8rem;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--stroke);
-  width: 100%;
-  text-align: center;
-}
-body.now-active .hero-clock .hero-time {
-  font-size: clamp(1.8rem, 8.5vw, 3.4rem);
-  font-weight: 800;
-  line-height: 1;
-}
-body.now-active .hero-clock .hero-ampm {
-  font-size: clamp(.85rem, 3.5vw, 1.4rem);
-}
-body.now-active .hero-clock .hero-date {
-  display: none;
-}
-body.now-active .hero-next {
-  display: none !important;
-}
+    .hero-time-box {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      width: 100%;
+      padding: 0;
+      margin: 0 auto;
+      white-space: nowrap;
+      line-height: .86;
+    }
 
-/* Focused, bold Right Now panel */
-body.now-active .now.active {
-  padding: 1.35rem 1.25rem 1.45rem;
-  margin-bottom: .85rem;
-  border-radius: var(--r);
-  background: color-mix(in srgb, var(--accent) 8%, var(--glass));
-}
-body.now-active .now .eyebrow {
-  font-size: clamp(.75rem, 2.5vw, 1.05rem);
-  letter-spacing: .14em;
-  font-weight: 750;
-  margin-bottom: .25rem;
-}
-body.now-active .now .nowtitle {
-  font-size: clamp(2.3rem, 10vw, 4.4rem);
-  line-height: 1.02;
-  font-weight: 850;
-  letter-spacing: -.03em;
-  margin: .25rem 0 .15rem;
-}
-body.now-active .now .nowsub {
-  font-size: clamp(1.05rem, 4.2vw, 1.7rem);
-  color: var(--accent-ink);
-  font-weight: 650;
-  margin-bottom: .6rem;
-}
-body.now-active .now .acts {
-  margin-top: 1rem;
-}
-body.now-active .now .acts li {
-  grid-template-columns: clamp(3.8rem, 14vw, 5.5rem) 1fr;
-  gap: .8rem;
-  padding: .7rem 0;
-}
-body.now-active .now .who {
-  font-size: clamp(.75rem, 2.5vw, 1rem);
-  padding: .35rem .2rem;
-  letter-spacing: .08em;
-  border-radius: var(--r-xs);
-}
-body.now-active .now .doing {
-  font-size: clamp(1.05rem, 3.8vw, 1.6rem);
-  line-height: 1.35;
-  font-weight: 550;
-}
+    .hero-clock .hero-time {
+      font-size: 34vw;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.055em;
+      line-height: .86;
+      color: var(--ink);
+      display: inline-block;
+    }
 
-/* ---------- old countdown (hidden, replaced by hero) ---------- */
-.next { display: none; }
+    .hero-clock .hero-ampm {
+      font-size: 11vw;
+      font-weight: 750;
+      color: var(--muted);
+      margin-left: .04em;
+      letter-spacing: -.02em;
+      display: inline-block;
+    }
 
-/* ---------- glowing now dot ---------- */
-.gdot {
-  width: .5rem; height: .5rem; border-radius: 50%; flex: none;
-  background: var(--accent);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent);
-  animation: glow 2.1s ease-out infinite;
-}
-@keyframes glow {
-  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 65%, transparent); }
-  70%  { box-shadow: 0 0 0 .62rem color-mix(in srgb, var(--accent) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
-}
-@media (prefers-reduced-motion: reduce) { .gdot { animation: none } }
+    .hero-clock .hero-date {
+      font-size: clamp(.72rem, 2.8vw, 1.4rem);
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: .2rem;
+      letter-spacing: .02em;
+    }
 
-/* ---------- timeline wheel ---------- */
-.tlwrap {
-  position: relative;
-  --bm: 1;
-  padding: .3rem 0; margin-bottom: .8rem;
-  max-height: 36vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
-}
-.tlwrap::-webkit-scrollbar { display: none; }
-.tlwrap.browsing { --bm: .1; }
-.tlwrap.browsing { mask-image: none; -webkit-mask-image: none; }
-.row {
-  display: grid; grid-template-columns: 4.6rem 1fr; gap: .7rem;
-  padding: .62rem 1.05rem; align-items: baseline;
-  transform-origin: center left;
-  filter: blur(calc(var(--b, 0px) * var(--bm, 1)));
-  opacity: calc(1 - (1 - var(--o, 1)) * var(--bm, 1));
-  transition: filter .45s ease, opacity .45s ease;
-}
-.rtime { font-size: .84rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
-.rtype { font-size: .98rem; font-weight: 650; letter-spacing: -.012em; }
-.rmeta { font-size: .79rem; color: var(--muted); display: block; margin-top: .08rem; }
-.row.cur { padding-top: .8rem; padding-bottom: .8rem; }
-.row.cur .rtype, .row.cur .rtime { color: var(--accent-ink); }
-.row.alarmed .rtime::after { content: " ●"; color: var(--amber); font-size: .6em; vertical-align: middle; }
+    /* Distinct shaded styling for Next Up */
+    .hero-next {
+      width: 100%;
+      text-align: center;
+      padding: .9rem .6rem .85rem;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      background: linear-gradient(160deg, #E2EFF2 0%, #D4E8EB 100%);
+      border-top: 1px solid rgba(14, 123, 113, 0.28);
+      border-bottom: 1px solid rgba(14, 123, 113, 0.28);
+      box-shadow: 0 4px 18px rgba(14, 123, 113, 0.08), var(--shadow);
+    }
 
-.nowline {
-  display: flex; align-items: center; gap: .55rem;
-  padding: .45rem 1.05rem; margin: .15rem 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 82%);
-}
-.nowline b {
-  font-size: .66rem; letter-spacing: .13em; text-transform: uppercase;
-  color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums;
-}
-.nowline i { flex: 1; height: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 45%, transparent), transparent); }
+    .hero-next .hero-label {
+      font-size: clamp(.65rem, 2.2vw, .95rem);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #0A5A53;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      background: rgba(14, 123, 113, 0.12);
+      padding: .2rem .75rem;
+      border-radius: 999px;
+      margin-bottom: .25rem;
+    }
 
-/* ---------- targets ---------- */
-.targets { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 .1rem .5rem; }
-.targets span {
-  font-size: .73rem; padding: .3rem .6rem; border-radius: 999px;
-  border: 1px solid var(--stroke); color: var(--muted); background: var(--glass-2);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-}
-.targets span b { color: var(--ink); font-weight: 700; }
-.caveat { font-size: .75rem; color: var(--faint); margin: 0 .35rem 1rem; }
+    .hero-next .hero-countdown {
+      font-size: clamp(3.5rem, 20vw, 11rem);
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.05em;
+      line-height: .95;
+      margin: .15rem 0;
+      color: #0B4A45;
+    }
 
-.daynote {
-  padding: .85rem 1rem; margin: 0 0 .9rem; font-size: .9rem;
-  border-radius: var(--r-sm); border: 1px solid var(--stroke);
-  border-left: 3px solid var(--amber); background: var(--glass);
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-}
+    .hero-next .hero-what {
+      font-size: clamp(.82rem, 2.8vw, 1.5rem);
+      color: #2D423F;
+      font-weight: 550;
+      margin: .1rem 0 0;
+    }
 
-/* ---------- controls ---------- */
-.controls { display: flex; flex-wrap: wrap; gap: .4rem; }
-button {
-  font-family: var(--sans); font-size: .84rem; font-weight: 550; color: var(--ink);
-  background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-  border: 1px solid var(--stroke); border-radius: 999px;
-  padding: .7rem 1rem; min-height: 2.9rem; cursor: pointer;
-  -webkit-tap-highlight-color: transparent; transition: transform .12s ease;
-}
-button:active { transform: scale(.97); }
-button[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-ink);
-}
-button.flag { color: var(--alert); border-color: color-mix(in srgb, var(--alert) 35%, transparent); }
-button.wide { flex: 1 1 100%; }
-button.big { font-size: 1rem; font-weight: 650; min-height: 3.4rem; border-radius: var(--r-sm); }
+    .hero-next .hero-what b {
+      color: #0C1E1C;
+      font-weight: 750;
+    }
 
-/* ---------- alarm bar ---------- */
-.alarmbar {
-  position: fixed; left: .7rem; right: .7rem; bottom: calc(.7rem + env(safe-area-inset-bottom));
-  z-index: 40; display: none; gap: .7rem; align-items: center;
-  padding: .9rem 1rem; border-radius: var(--r);
-  background: color-mix(in srgb, var(--alert) 20%, var(--glass));
-  -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
-  border: 1px solid color-mix(in srgb, var(--alert) 55%, transparent);
-  box-shadow: 0 10px 40px color-mix(in srgb, var(--alert) 28%, transparent);
-}
-.alarmbar.on { display: flex; }
-.alarmbar p { margin: 0; flex: 1; font-weight: 650; color: var(--alert); font-size: .95rem; }
-.alarmbar button { border-color: color-mix(in srgb, var(--alert) 50%, transparent); color: var(--alert); }
+    .hero-next.soon {
+      background: linear-gradient(160deg, #FBF1E2 0%, #F5E4CB 100%);
+      border-color: rgba(154, 95, 22, 0.45);
+    }
 
-/* ---------- night dimming ---------- */
-#dimmer {
-  position: fixed; inset: 0; z-index: 60; pointer-events: none;
-  background: #000; opacity: 0; transition: opacity .8s ease;
-}
+    .hero-next.soon .hero-label {
+      color: #7D4C0E;
+      background: rgba(154, 95, 22, 0.15);
+    }
 
-/* ---------- change light ---------- */
-.fab {
-  position: fixed; right: .85rem; z-index: 65;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  width: 4.6rem; height: 4.6rem; border-radius: 50%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: .12rem; padding: 0; cursor: pointer;
-  font-size: .58rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--ink); background: var(--glass);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5); backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid var(--stroke);
-  box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--paper) 55%, transparent);
-}
-.fab .bulb {
-  width: 1.15rem; height: 1.15rem; border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #FFF8E6, #FFD98A 62%, #E8A83C);
-  box-shadow: 0 0 10px color-mix(in srgb, #FFC864 70%, transparent);
-}
-.lightpanel {
-  position: fixed; inset: 0; z-index: 80; display: none;
-  flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 2rem 1.5rem; cursor: pointer;
-  background: #FFFFFF; color: #16211F;
-}
-.lightpanel.on { display: flex; }
-.lightpanel .lp-h { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; margin: 0 0 .5rem; }
-.lightpanel .lp-b { font-size: 1rem; line-height: 1.5; max-width: 22rem; margin: 0 0 .5rem; color: #33403D; }
-.lightpanel .lp-w { font-size: .95rem; line-height: 1.5; max-width: 22rem; margin: .9rem 0 0;
-  color: #8A3A16; font-weight: 600; }
-.lightpanel .lp-t { margin-top: 2rem; font-size: .68rem; letter-spacing: .14em;
-  text-transform: uppercase; font-weight: 700; color: #7C8886; }
+    .hero-next.soon .hero-countdown {
+      color: #9A5F16;
+    }
 
-/* ---------- overlay ---------- */
-.ov {
-  position: fixed; inset: 0; z-index: 70; display: none; overflow-y: auto;
-  background: radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%);
-  padding: 1.1rem .9rem calc(2rem + env(safe-area-inset-bottom));
-}
-.ov.on { display: block; }
-.ov .inner { max-width: 30rem; margin: 0 auto; }
-.ov h2 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; margin: .2rem 0 .9rem; }
-.ov h3 { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 .5rem; font-weight: 700; }
-.ov ul { margin: .3rem 0; padding-left: 1.15rem; }
-.ov li { margin: .38rem 0; font-size: .92rem; }
-.box { border-radius: var(--r-sm); padding: .9rem 1rem; border: 1px solid var(--stroke); background: var(--glass); margin-bottom: .9rem; }
-.box.stop  { border-left: 3px solid var(--alert); } .box.stop h3  { color: var(--alert); }
-.box.watch { border-left: 3px solid var(--amber); } .box.watch h3 { color: var(--amber); }
-footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--faint); line-height: 1.55; }
+    .hero-next.late {
+      background: linear-gradient(160deg, #FCE8E6 0%, #F8D3D0 100%);
+      border-color: rgba(179, 53, 42, 0.55);
+      box-shadow: var(--shadow), 0 0 46px color-mix(in srgb, var(--alert) 26%, transparent);
+      animation: breathe 1.8s ease-in-out infinite;
+    }
 
-/* In landscape, shrink the detail panels so the hero panels stay dominant */
-@media (orientation: landscape) and (min-width: 500px) {
-  .now { padding: .8rem 1rem; }
-  .nowtitle { font-size: 1.5rem; }
-  .tlwrap { max-height: 28vh; }
-}
-</style>
+    .hero-next.late .hero-label {
+      color: #8C1F16;
+      background: rgba(179, 53, 42, 0.18);
+    }
+
+    .hero-next.late .hero-countdown {
+      color: #B3352A;
+    }
+
+    :root[data-theme="dark"] .hero-next,
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .hero-next {
+        background: linear-gradient(160deg, #122B2A 0%, #0A1D1C 100%);
+        border-color: rgba(95, 211, 196, 0.35);
+        box-shadow: 0 4px 22px rgba(0, 0, 0, 0.4), 0 0 15px rgba(95, 211, 196, 0.08);
+      }
+
+      :root:not([data-theme="light"]) .hero-next .hero-label {
+        color: #8FE4D8;
+        background: rgba(95, 211, 196, 0.18);
+      }
+
+      :root:not([data-theme="light"]) .hero-next .hero-countdown {
+        color: #6EE5D6;
+      }
+
+      :root:not([data-theme="light"]) .hero-next .hero-what {
+        color: #A8C4C0;
+      }
+
+      :root:not([data-theme="light"]) .hero-next .hero-what b {
+        color: #EAF1EF;
+      }
+
+      :root:not([data-theme="light"]) .hero-next.soon {
+        background: linear-gradient(160deg, #2D2213 0%, #1F170B 100%);
+        border-color: rgba(224, 174, 106, 0.5);
+      }
+
+      :root:not([data-theme="light"]) .hero-next.soon .hero-label {
+        color: #E0AE6A;
+        background: rgba(224, 174, 106, 0.2);
+      }
+
+      :root:not([data-theme="light"]) .hero-next.soon .hero-countdown {
+        color: #E0AE6A;
+      }
+
+      :root:not([data-theme="light"]) .hero-next.late {
+        background: linear-gradient(160deg, #331310 0%, #240B09 100%);
+        border-color: rgba(255, 141, 128, 0.6);
+      }
+
+      :root:not([data-theme="light"]) .hero-next.late .hero-label {
+        color: #FF8D80;
+        background: rgba(255, 141, 128, 0.22);
+      }
+
+      :root:not([data-theme="light"]) .hero-next.late .hero-countdown {
+        color: #FF8D80;
+      }
+    }
+
+    :root[data-theme="dark"] .hero-next .hero-label {
+      color: #8FE4D8;
+      background: rgba(95, 211, 196, 0.18);
+    }
+
+    :root[data-theme="dark"] .hero-next .hero-countdown {
+      color: #6EE5D6;
+    }
+
+    :root[data-theme="dark"] .hero-next .hero-what {
+      color: #A8C4C0;
+    }
+
+    :root[data-theme="dark"] .hero-next .hero-what b {
+      color: #EAF1EF;
+    }
+
+    :root[data-theme="dark"] .hero-next.soon {
+      background: linear-gradient(160deg, #2D2213 0%, #1F170B 100%);
+      border-color: rgba(224, 174, 106, 0.5);
+    }
+
+    :root[data-theme="dark"] .hero-next.soon .hero-label {
+      color: #E0AE6A;
+      background: rgba(224, 174, 106, 0.2);
+    }
+
+    :root[data-theme="dark"] .hero-next.soon .hero-countdown {
+      color: #E0AE6A;
+    }
+
+    :root[data-theme="dark"] .hero-next.late {
+      background: linear-gradient(160deg, #331310 0%, #240B09 100%);
+      border-color: rgba(255, 141, 128, 0.6);
+    }
+
+    :root[data-theme="dark"] .hero-next.late .hero-label {
+      color: #FF8D80;
+      background: rgba(255, 141, 128, 0.22);
+    }
+
+    :root[data-theme="dark"] .hero-next.late .hero-countdown {
+      color: #FF8D80;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .78
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-next.late {
+        animation: none
+      }
+
+      body.feed-active {
+        animation: none;
+      }
+    }
+
+    /* Landscape: put clock and next-up side by side */
+    @media (orientation: landscape) and (min-width: 500px) {
+      .hero-wrap {
+        flex-direction: row;
+        gap: .65rem;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        align-items: stretch;
+      }
+
+      .hero-clock,
+      .hero-next {
+        flex: 1;
+        min-width: 0;
+        border-radius: var(--r);
+        border: 1px solid var(--stroke);
+      }
+
+      .hero-clock {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .hero-clock .hero-time {
+        font-size: clamp(3rem, 14vw, 11rem);
+      }
+
+      .hero-clock .hero-ampm {
+        font-size: clamp(1rem, 3.5vw, 2.5rem);
+      }
+
+      .hero-next .hero-countdown {
+        font-size: clamp(2.5rem, 12vw, 9rem);
+      }
+
+      .hero-next {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* ---------- header ---------- */
+    header {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .5rem .8rem .3rem;
+    }
+
+    .dayn {
+      font-size: 1.02rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .datestr {
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    header .spacer {
+      flex: 1;
+    }
+
+    .clocknow {
+      display: none;
+    }
+
+    .dot {
+      width: .44rem;
+      height: .44rem;
+      border-radius: 50%;
+      background: var(--ok);
+      flex: none;
+      opacity: .9;
+    }
+
+    .dot.off {
+      background: var(--amber);
+    }
+
+    /* ---------- now panel ---------- */
+    .now {
+      padding: 1.15rem 1.1rem;
+      margin-bottom: .7rem;
+    }
+
+    .now.active {
+      border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+      box-shadow: var(--shadow), 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent),
+        0 0 45px color-mix(in srgb, var(--accent) 30%, transparent);
+      animation: cardPulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes cardPulse {
+
+      0%,
+      100% {
+        box-shadow: var(--shadow), 0 0 0 1.5px color-mix(in srgb, var(--accent) 30%, transparent),
+          0 0 24px color-mix(in srgb, var(--accent) 18%, transparent);
+      }
+
+      50% {
+        box-shadow: var(--shadow), 0 0 0 3px color-mix(in srgb, var(--accent) 65%, transparent),
+          0 0 55px color-mix(in srgb, var(--accent) 42%, transparent);
+      }
+    }
+
+    .eyebrow {
+      font-size: .66rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .now.active .eyebrow {
+      color: var(--accent);
+    }
+
+    .nowtitle {
+      font-size: 2.05rem;
+      line-height: 1.08;
+      font-weight: 700;
+      letter-spacing: -.025em;
+      margin: .5rem 0 .1rem;
+      text-wrap: balance;
+    }
+
+    .now.active .nowtitle {
+      color: var(--accent-ink);
+    }
+
+    .nowsub {
+      margin: 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    /* Action list */
+    .acts {
+      list-style: none;
+      margin: .95rem 0 0;
+      padding: 0;
+    }
+
+    .acts li {
+      display: grid;
+      grid-template-columns: 3.5rem 1fr;
+      gap: .7rem;
+      align-items: start;
+      padding: .5rem 0;
+      border-top: 1px solid var(--stroke-2);
+    }
+
+    .acts li:first-child {
+      border-top: 0;
+      padding-top: .15rem;
+    }
+
+    .who {
+      font-size: .66rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: .25rem 0;
+      border-radius: var(--r-xs);
+      text-align: center;
+      background: color-mix(in srgb, var(--accent) 16%, transparent);
+      color: var(--accent-ink);
+    }
+
+    .who.dad {
+      background: color-mix(in srgb, var(--amber) 20%, transparent);
+      color: var(--amber);
+    }
+
+    .acts li[data-tone="rest"] .who {
+      background: var(--glass-2);
+      color: var(--faint);
+    }
+
+    .acts li[data-tone="rest"] .doing {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .acts li[data-tone="self"] .doing {
+      color: var(--accent-ink);
+    }
+
+    .acts li[data-tone] .doing::before {
+      content: "";
+      display: inline-block;
+      width: .36rem;
+      height: .36rem;
+      border-radius: 50%;
+      margin-right: .5rem;
+      vertical-align: .1em;
+    }
+
+    .acts li[data-tone="care"] .doing::before {
+      background: var(--faint);
+    }
+
+    .acts li[data-tone="self"] .doing::before {
+      background: var(--accent);
+    }
+
+    .acts li[data-tone="rest"] .doing::before {
+      background: var(--faint);
+      opacity: .5;
+    }
+
+    .doing {
+      font-size: .96rem;
+      line-height: 1.35;
+    }
+
+    /* ========== ACTIVE MODE: When stuff is happening RIGHT NOW ========== */
+    body.now-active .hero-wrap {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: .45rem;
+    }
+
+    body.now-active .hero-clock {
+      padding: .35rem .8rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--stroke);
+      width: 100%;
+      text-align: center;
+    }
+
+    body.now-active .hero-clock .hero-time {
+      font-size: clamp(1.8rem, 8.5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    body.now-active .hero-clock .hero-ampm {
+      font-size: clamp(.85rem, 3.5vw, 1.4rem);
+    }
+
+    body.now-active .hero-clock .hero-date {
+      display: none;
+    }
+
+    body.now-active .hero-next {
+      display: none !important;
+    }
+
+    /* Focused, bold Right Now panel */
+    body.now-active .now.active {
+      padding: 1.35rem 1.25rem 1.45rem;
+      margin-bottom: .85rem;
+      border-radius: var(--r);
+      background: color-mix(in srgb, var(--accent) 8%, var(--glass));
+    }
+
+    body.now-active .now .eyebrow {
+      font-size: clamp(.75rem, 2.5vw, 1.05rem);
+      letter-spacing: .14em;
+      font-weight: 750;
+      margin-bottom: .25rem;
+    }
+
+    body.now-active .now .nowtitle {
+      font-size: clamp(2.3rem, 10vw, 4.4rem);
+      line-height: 1.02;
+      font-weight: 850;
+      letter-spacing: -.03em;
+      margin: .25rem 0 .15rem;
+    }
+
+    body.now-active .now .nowsub {
+      font-size: clamp(1.05rem, 4.2vw, 1.7rem);
+      color: var(--accent-ink);
+      font-weight: 650;
+      margin-bottom: .6rem;
+    }
+
+    body.now-active .now .acts {
+      margin-top: 1rem;
+    }
+
+    body.now-active .now .acts li {
+      grid-template-columns: clamp(3.8rem, 14vw, 5.5rem) 1fr;
+      gap: .8rem;
+      padding: .7rem 0;
+    }
+
+    body.now-active .now .who {
+      font-size: clamp(.75rem, 2.5vw, 1rem);
+      padding: .35rem .2rem;
+      letter-spacing: .08em;
+      border-radius: var(--r-xs);
+    }
+
+    body.now-active .now .doing {
+      font-size: clamp(1.05rem, 3.8vw, 1.6rem);
+      line-height: 1.35;
+      font-weight: 550;
+    }
+
+    /* ---------- old countdown (hidden, replaced by hero) ---------- */
+    .next {
+      display: none;
+    }
+
+    /* ---------- glowing now dot ---------- */
+    .gdot {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      flex: none;
+      background: var(--accent);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent);
+      animation: glow 2.1s ease-out infinite;
+    }
+
+    @keyframes glow {
+      0% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 65%, transparent);
+      }
+
+      70% {
+        box-shadow: 0 0 0 .62rem color-mix(in srgb, var(--accent) 0%, transparent);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gdot {
+        animation: none
+      }
+    }
+
+    /* ---------- timeline wheel ---------- */
+    .tlwrap {
+      position: relative;
+      --bm: 1;
+      padding: .3rem 0;
+      margin-bottom: .8rem;
+      max-height: 36vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+    }
+
+    .tlwrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tlwrap.browsing {
+      --bm: .1;
+    }
+
+    .tlwrap.browsing {
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 4.6rem 1fr;
+      gap: .7rem;
+      padding: .62rem 1.05rem;
+      align-items: baseline;
+      transform-origin: center left;
+      filter: blur(calc(var(--b, 0px) * var(--bm, 1)));
+      opacity: calc(1 - (1 - var(--o, 1)) * var(--bm, 1));
+      transition: filter .45s ease, opacity .45s ease;
+    }
+
+    .rtime {
+      font-size: .84rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .rtype {
+      font-size: .98rem;
+      font-weight: 650;
+      letter-spacing: -.012em;
+    }
+
+    .rmeta {
+      font-size: .79rem;
+      color: var(--muted);
+      display: block;
+      margin-top: .08rem;
+    }
+
+    .row.cur {
+      padding-top: .8rem;
+      padding-bottom: .8rem;
+    }
+
+    .row.cur .rtype,
+    .row.cur .rtime {
+      color: var(--accent-ink);
+    }
+
+    .row.alarmed .rtime::after {
+      content: " ●";
+      color: var(--amber);
+      font-size: .6em;
+      vertical-align: middle;
+    }
+
+    .nowline {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .45rem 1.05rem;
+      margin: .15rem 0;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 82%);
+    }
+
+    .nowline b {
+      font-size: .66rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .nowline i {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+    }
+
+    /* ---------- targets ---------- */
+    .targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin: 0 .1rem .5rem;
+    }
+
+    .targets span {
+      font-size: .73rem;
+      padding: .3rem .6rem;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      color: var(--muted);
+      background: var(--glass-2);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    .targets span b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .caveat {
+      font-size: .75rem;
+      color: var(--faint);
+      margin: 0 .35rem 1rem;
+    }
+
+    .daynote {
+      padding: .85rem 1rem;
+      margin: 0 0 .9rem;
+      font-size: .9rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--stroke);
+      border-left: 3px solid var(--amber);
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+    }
+
+    /* ---------- controls ---------- */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+
+    button {
+      font-family: var(--sans);
+      font-size: .84rem;
+      font-weight: 550;
+      color: var(--ink);
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      padding: .7rem 1rem;
+      min-height: 2.9rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s ease;
+    }
+
+    button:active {
+      transform: scale(.97);
+    }
+
+    button[aria-pressed="true"] {
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+      color: var(--accent-ink);
+    }
+
+    button.flag {
+      color: var(--alert);
+      border-color: color-mix(in srgb, var(--alert) 35%, transparent);
+    }
+
+    button.wide {
+      flex: 1 1 100%;
+    }
+
+    button.big {
+      font-size: 1rem;
+      font-weight: 650;
+      min-height: 3.4rem;
+      border-radius: var(--r-sm);
+    }
+
+    /* ---------- alarm bar ---------- */
+    .alarmbar {
+      position: fixed;
+      left: .7rem;
+      right: .7rem;
+      bottom: calc(.7rem + env(safe-area-inset-bottom));
+      z-index: 40;
+      display: none;
+      gap: .7rem;
+      align-items: center;
+      padding: .9rem 1rem;
+      border-radius: var(--r);
+      background: color-mix(in srgb, var(--alert) 20%, var(--glass));
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+      border: 1px solid color-mix(in srgb, var(--alert) 55%, transparent);
+      box-shadow: 0 10px 40px color-mix(in srgb, var(--alert) 28%, transparent);
+    }
+
+    .alarmbar.on {
+      display: flex;
+    }
+
+    .alarmbar p {
+      margin: 0;
+      flex: 1;
+      font-weight: 650;
+      color: var(--alert);
+      font-size: .95rem;
+    }
+
+    .alarmbar button {
+      border-color: color-mix(in srgb, var(--alert) 50%, transparent);
+      color: var(--alert);
+    }
+
+    /* ---------- night dimming ---------- */
+    #dimmer {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      background: #000;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
+    /* ---------- change light ---------- */
+    .fab {
+      position: fixed;
+      right: .85rem;
+      z-index: 65;
+      bottom: calc(1rem + env(safe-area-inset-bottom));
+      width: 4.6rem;
+      height: 4.6rem;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .12rem;
+      padding: 0;
+      cursor: pointer;
+      font-size: .58rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      backdrop-filter: blur(20px) saturate(1.5);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--paper) 55%, transparent);
+    }
+
+    .fab .bulb {
+      width: 1.15rem;
+      height: 1.15rem;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 34%, #FFF8E6, #FFD98A 62%, #E8A83C);
+      box-shadow: 0 0 10px color-mix(in srgb, #FFC864 70%, transparent);
+    }
+
+    .lightpanel {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      cursor: pointer;
+      background: #FFFFFF;
+      color: #16211F;
+    }
+
+    .lightpanel.on {
+      display: flex;
+    }
+
+    .lightpanel .lp-h {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin: 0 0 .5rem;
+    }
+
+    .lightpanel .lp-b {
+      font-size: 1rem;
+      line-height: 1.5;
+      max-width: 22rem;
+      margin: 0 0 .5rem;
+      color: #33403D;
+    }
+
+    .lightpanel .lp-w {
+      font-size: .95rem;
+      line-height: 1.5;
+      max-width: 22rem;
+      margin: .9rem 0 0;
+      color: #8A3A16;
+      font-weight: 600;
+    }
+
+    .lightpanel .lp-t {
+      margin-top: 2rem;
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #7C8886;
+    }
+
+    /* ---------- overlay ---------- */
+    .ov {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: none;
+      overflow-y: auto;
+      background: radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%);
+      padding: 1.1rem .9rem calc(2rem + env(safe-area-inset-bottom));
+    }
+
+    .ov.on {
+      display: block;
+    }
+
+    .ov .inner {
+      max-width: 30rem;
+      margin: 0 auto;
+    }
+
+    .ov h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin: .2rem 0 .9rem;
+    }
+
+    .ov h3 {
+      font-size: .68rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin: 0 0 .5rem;
+      font-weight: 700;
+    }
+
+    .ov ul {
+      margin: .3rem 0;
+      padding-left: 1.15rem;
+    }
+
+    .ov li {
+      margin: .38rem 0;
+      font-size: .92rem;
+    }
+
+    .box {
+      border-radius: var(--r-sm);
+      padding: .9rem 1rem;
+      border: 1px solid var(--stroke);
+      background: var(--glass);
+      margin-bottom: .9rem;
+    }
+
+    .box.stop {
+      border-left: 3px solid var(--alert);
+    }
+
+    .box.stop h3 {
+      color: var(--alert);
+    }
+
+    .box.watch {
+      border-left: 3px solid var(--amber);
+    }
+
+    .box.watch h3 {
+      color: var(--amber);
+    }
+
+    footer {
+      margin-top: 1.2rem;
+      padding: 0 .35rem;
+      font-size: .73rem;
+      color: var(--faint);
+      line-height: 1.55;
+    }
+
+    /* In landscape, shrink the detail panels so the hero panels stay dominant */
+    @media (orientation: landscape) and (min-width: 500px) {
+      .now {
+        padding: .8rem 1rem;
+      }
+
+      .nowtitle {
+        font-size: 1.5rem;
+      }
+
+      .tlwrap {
+        max-height: 28vh;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="wrap">
+  <div class="wrap">
 
-  <header>
-    <span class="dayn" id="dayn">&mdash;</span>
-    <span class="spacer"></span>
-    <span class="dot off" id="dot" title="schedule freshness"></span>
-    <span class="clocknow" id="clock">&mdash;</span>
-  </header>
+    <header>
+      <span class="dayn" id="dayn">&mdash;</span>
+      <span class="spacer"></span>
+      <span class="dot off" id="dot" title="schedule freshness"></span>
+      <span class="clocknow" id="clock">&mdash;</span>
+    </header>
 
-  <div class="hero-wrap">
-    <div class="hero-clock glass" id="heroclock">
-      <div class="hero-time-box" id="herotimebox"><span class="hero-time" id="herotime">&mdash;</span><span class="hero-ampm" id="heroampm"></span></div>
-      <div class="hero-date" id="herodate"></div>
+    <div class="hero-wrap">
+      <div class="hero-clock glass" id="heroclock">
+        <div class="hero-time-box" id="herotimebox"><span class="hero-time" id="herotime">&mdash;</span><span
+            class="hero-ampm" id="heroampm"></span></div>
+        <div class="hero-date" id="herodate"></div>
+      </div>
+      <div class="hero-next glass" id="heronext">
+        <div class="hero-label" id="herolabel">Next up</div>
+        <div class="hero-countdown" id="herocountdown">&mdash;</div>
+        <p class="hero-what" id="herowhat"></p>
+      </div>
     </div>
-    <div class="hero-next glass" id="heronext">
-      <div class="hero-label" id="herolabel">Next up</div>
-      <div class="hero-countdown" id="herocountdown">&mdash;</div>
-      <p class="hero-what" id="herowhat"></p>
+
+    <section class="now glass" id="nowpanel">
+      <span class="eyebrow" id="noweyebrow">Right now</span>
+      <p class="nowtitle" id="nowtitle">Loading</p>
+      <p class="nowsub" id="nowsub"></p>
+      <ul class="acts" id="acts"></ul>
+    </section>
+
+    <section class="next glass" id="nextpanel">
+      <span class="eyebrow" id="nexteyebrow">Next up</span>
+      <div class="countdown" id="countdown">&mdash;</div>
+      <p class="nextwhat" id="nextwhat"></p>
+    </section>
+
+    <div class="tlwrap" id="tlwrap"></div>
+
+    <div class="targets" id="targets"></div>
+    <p class="caveat">Targets only. This board does not know what he has actually had &mdash; Huckleberry does.</p>
+
+    <p class="daynote" id="daynote" hidden></p>
+
+    <div class="controls">
+      <button class="big wide" id="armbtn">Arm alarms</button>
+      <button id="shiftbtn">Running late &mdash; shift 30 min</button>
+      <button id="wakebtn" aria-pressed="true">Screen stays on</button>
+      <button id="fsbtn">Full screen</button>
+      <button id="themebtn">Theme: auto</button>
+      <button id="milkbtn">Milk &amp; bottles</button>
+      <button class="flag" id="flagbtn">Red flags</button>
+    </div>
+
+    <footer>
+      A schedule, nothing more. It does not know what actually happened &mdash; log feeds in
+      Huckleberry. Your pediatrician overrules every line on this screen.
+      <span id="cfgstamp"></span>
+    </footer>
+
+  </div>
+
+  <div class="alarmbar" id="alarmbar">
+    <p id="alarmtext">Feed due</p>
+    <button id="dismissbtn">Dismiss</button>
+  </div>
+
+  <div id="dimmer"></div>
+
+  <button class="fab" id="fab" aria-label="Change light — full brightness">
+    <span class="bulb"></span>Light
+  </button>
+
+  <div class="lightpanel" id="lightpanel" role="dialog" aria-label="Change light">
+    <p class="lp-h">Diaper change</p>
+    <p class="lp-b">Front to back. Clean, dry, cream if he is red, then a fresh diaper.</p>
+    <p class="lp-b">This screen is deliberately plain white so the colour you see is the real one.</p>
+    <p class="lp-w">Yellow and seedy is normal. Call today for white, chalky or grey — or for red or black.</p>
+    <p class="lp-t">Tap anywhere to close</p>
+  </div>
+
+  <div class="ov" id="milkov">
+    <div class="inner">
+      <h2>Milk &amp; bottles</h2>
+
+      <div class="box do">
+        <h3>The rule that stops the waste</h3>
+        <p><strong>Warm only what you have, and let formula make up the rest.</strong> Breastmilk
+          is the scarce thing; formula is unlimited and mixes fresh every time. So the order is
+          breast &rarr; the small warmed portion &rarr; fresh formula up to target. Nothing precious
+          is ever poured away.</p>
+        <p><strong>Store in 60 mL portions, not big ones.</strong> You can only waste what you
+          thawed &mdash; so never thaw more than one feed's worth.</p>
+        <p><strong>Try him on fridge-cold or room-temperature milk.</strong> Warming is a
+          preference, not a requirement. If he takes it cool, the whole problem disappears and
+          2 AM gets far easier. Worth one try at a daytime feed.</p>
+      </div>
+
+      <div class="box watch">
+        <h3>How long it keeps</h3>
+        <ul>
+          <li>Freshly expressed, room temperature &mdash; <strong>4 hours</strong></li>
+          <li>Fridge &mdash; <strong>4 days</strong></li>
+          <li>Freezer &mdash; <strong>6 months</strong> is best, 12 months acceptable</li>
+          <li>Thawed in the fridge &mdash; <strong>24 hours</strong>. <strong>Never refreeze.</strong></li>
+          <li>Warmed but not yet offered &mdash; use within <strong>2 hours</strong></li>
+          <li><strong>Once he has drunk from the bottle &mdash; finish within 2 hours, then throw
+              the rest away</strong>, however much is left. His mouth put bacteria in it.</li>
+        </ul>
+      </div>
+
+      <div class="box do">
+        <h3>Warming</h3>
+        <ul>
+          <li>Bottle warmer, or stand the bottle in a mug of warm water for 5&ndash;10 minutes</li>
+          <li><strong>Never a microwave.</strong> Hot spots scald, and it destroys the antibodies</li>
+          <li><strong>Swirl, do not shake</strong></li>
+          <li>Test on the inside of your wrist &mdash; it should feel like nothing at all</li>
+          <li>Separated layers are normal. Swirling brings the fat back in.</li>
+        </ul>
+      </div>
+
+      <div class="box watch">
+        <h3>Formula</h3>
+        <ul>
+          <li>Ready-to-feed is safest under 2 months &mdash; powder is not sterile</li>
+          <li>If using powder: water boiled and cooled to about 70&deg;C / 158&deg;F, then cooled
+            quickly. Water first, then a level scoop.</li>
+          <li><strong>Never dilute to stretch it, never concentrate it to add calories</strong></li>
+          <li>Made up &mdash; 2 hours at room temperature, 24 hours in the fridge, 1 hour once he starts</li>
+        </ul>
+      </div>
+
+      <button class="wide big" id="milkclose">Close</button>
     </div>
   </div>
 
-  <section class="now glass" id="nowpanel">
-    <span class="eyebrow" id="noweyebrow">Right now</span>
-    <p class="nowtitle" id="nowtitle">Loading</p>
-    <p class="nowsub" id="nowsub"></p>
-    <ul class="acts" id="acts"></ul>
-  </section>
+  <div class="ov" id="flagov">
+    <div class="inner">
+      <h2>Red flags</h2>
 
-  <section class="next glass" id="nextpanel">
-    <span class="eyebrow" id="nexteyebrow">Next up</span>
-    <div class="countdown" id="countdown">&mdash;</div>
-    <p class="nextwhat" id="nextwhat"></p>
-  </section>
+      <div class="box stop">
+        <h3>Emergency room now &mdash; do not call first</h3>
+        <ul>
+          <li><strong>Rectal temperature 100.4&deg;F / 38.0&deg;C or higher.</strong> Give no fever medicine first.</li>
+          <li>Temperature below <strong>97.7&deg;F / 36.4&deg;C</strong> that will not come up with skin-to-skin and a
+            blanket</li>
+          <li><strong>Trouble breathing:</strong> more than 60 breaths a minute at rest, grunting with each breath,
+            nostrils flaring, or skin sucking in between or below the ribs</li>
+          <li><strong>Pauses in breathing longer than 20 seconds</strong>, or any pause with colour change</li>
+          <li><strong>Blue or dusky lips, tongue, or face.</strong> Blue hands and feet alone are normal.</li>
+          <li><strong>Limp, floppy, or will not wake</strong> enough to feed</li>
+          <li>Seizure, or rhythmic jerking you cannot stop by holding the limb</li>
+          <li>Soft spot <strong>bulging</strong> when he is upright and calm, or clearly <strong>sunken</strong></li>
+          <li><strong>Green or yellow-green vomit</strong>, forceful projectile vomiting, or blood in vomit or stool
+          </li>
+          <li>Any fall, drop, or blow to the head</li>
+          <li>A cry that is <strong>high-pitched, shrill, or weak and moaning</strong> rather than a normal angry cry
+          </li>
+        </ul>
+      </div>
 
-  <div class="tlwrap" id="tlwrap"></div>
+      <div class="box watch">
+        <h3>Call the pediatrician today &mdash; same day, not tomorrow</h3>
+        <ul>
+          <li><strong>Jaundice spreading below the belly button</strong> onto the legs or feet, or deepening in the
+            whites of the eyes</li>
+          <li>Getting harder to wake for feeds, or feeding noticeably less than yesterday</li>
+          <li><strong>Fewer than 6 wet diapers a day</strong>, or no wet diaper in 8 hours</li>
+          <li>No stool at all in 24 hours during these first weeks</li>
+          <li>Stool that turns <strong>white, chalky, or grey</strong></li>
+          <li>Brick-red or orange powder in the diaper</li>
+          <li>Cord: spreading redness, pus, foul smell, or real bleeding</li>
+          <li>Straining to urinate, or dribbling rather than streaming</li>
+          <li>Inconsolable crying for hours that is unlike him</li>
+          <li><strong>Not back to birth weight by day 14</strong>, or gaining under 20 g a day for two days running</li>
+          <li>Any rash with blisters or fluid-filled spots</li>
+          <li><strong>Anyone with a cold sore has been near him</strong></li>
+          <li>Your gut says something is wrong. That counts. Say exactly that on the phone.</li>
+        </ul>
+      </div>
 
-  <div class="targets" id="targets"></div>
-  <p class="caveat">Targets only. This board does not know what he has actually had &mdash; Huckleberry does.</p>
+      <div class="box">
+        <h3>Have ready when you call</h3>
+        <p style="margin:0;font-size:.92rem">Age in days and hours &middot; birth weight and last known weight &middot;
+          rectal temperature &middot; wet and dirty diapers in the last 24 hours &middot; how much he has eaten and when
+          he last fed &middot; how far down the jaundice reaches.</p>
+      </div>
 
-  <p class="daynote" id="daynote" hidden></p>
+      <div class="box">
+        <h3>Numbers</h3>
+        <p style="margin:0;font-size:.92rem">Poison Control <span class="num">1-800-222-1222</span><br>Maternal Mental
+          Health <span class="num">1-833-852-6262</span><br>Crisis line <span class="num">988</span></p>
+      </div>
 
-  <div class="controls">
-    <button class="big wide" id="armbtn">Arm alarms</button>
-    <button id="shiftbtn">Running late &mdash; shift 30 min</button>
-    <button id="wakebtn" aria-pressed="true">Screen stays on</button>
-    <button id="fsbtn">Full screen</button>
-    <button id="themebtn">Theme: auto</button>
-    <button id="milkbtn">Milk &amp; bottles</button>
-    <button class="flag" id="flagbtn">Red flags</button>
+      <button class="wide big" id="flagclose">Close</button>
+    </div>
   </div>
 
-  <footer>
-    A schedule, nothing more. It does not know what actually happened &mdash; log feeds in
-    Huckleberry. Your pediatrician overrules every line on this screen.
-    <span id="cfgstamp"></span>
-  </footer>
+  <script>
+    (function () {
+      "use strict";
 
-</div>
+      /* ---------- storage, defensively ---------- */
+      var store = null;
+      try { store = window.localStorage; store.setItem("__t", "1"); store.removeItem("__t"); }
+      catch (e) { store = null; }
+      function get(k, d) { try { var v = store && store.getItem(k); return v === null || v === undefined ? d : v; } catch (e) { return d; } }
+      function set(k, v) { try { store && store.setItem(k, v); } catch (e) { } }
 
-<div class="alarmbar" id="alarmbar">
-  <p id="alarmtext">Feed due</p>
-  <button id="dismissbtn">Dismiss</button>
-</div>
+      var sess = null;
+      try { sess = window.sessionStorage; sess.setItem("__t", "1"); sess.removeItem("__t"); }
+      catch (e) { sess = null; }
+      function sget(k, d) { try { var v = sess && sess.getItem(k); return v === null || v === undefined ? d : v; } catch (e) { return d; } }
+      function sset(k, v) { try { sess && sess.setItem(k, v); } catch (e) { } }
 
-<div id="dimmer"></div>
+      /* ---------- fallback schedule, so the board works before the first fetch ---------- */
+      var CFG = {
+        version: 0,
+        targets: { perFeedMl: [68, 90], feedsPerDay: 9, pumpsPerDay: 6, wetPerDay: 6, dirtyPerDay: 3, maxGapMin: 180 },
+        profiles: {
+          catchup: {
+            label: "Catch-up", blocks: [
+              { t: "07:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "10:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "13:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "16:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "18:30", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "21:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Go to bed now.", tone: "rest" }] },
+              { t: "23:30", type: "BOTTLE", alarm: true, actions: [{ who: "Dad", do: "Bottle feed, paced" }] },
+              { t: "02:00", type: "FULL", alarm: true, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "04:30", type: "BOTTLE", alarm: true, actions: [{ who: "Mom", do: "Bottle feed, paced" }] }
+            ]
+          }
+        },
+        days: []
+      };
+      var cached = get("bcbrd:config", null);
+      if (cached) { try { CFG = JSON.parse(cached); } catch (e) { } }
 
-<button class="fab" id="fab" aria-label="Change light — full brightness">
-  <span class="bulb"></span>Light
-</button>
-
-<div class="lightpanel" id="lightpanel" role="dialog" aria-label="Change light">
-  <p class="lp-h">Diaper change</p>
-  <p class="lp-b">Front to back. Clean, dry, cream if he is red, then a fresh diaper.</p>
-  <p class="lp-b">This screen is deliberately plain white so the colour you see is the real one.</p>
-  <p class="lp-w">Yellow and seedy is normal. Call today for white, chalky or grey — or for red or black.</p>
-  <p class="lp-t">Tap anywhere to close</p>
-</div>
-
-<div class="ov" id="milkov">
-  <div class="inner">
-    <h2>Milk &amp; bottles</h2>
-
-    <div class="box do">
-      <h3>The rule that stops the waste</h3>
-      <p><strong>Warm only what you have, and let formula make up the rest.</strong> Breastmilk
-      is the scarce thing; formula is unlimited and mixes fresh every time. So the order is
-      breast &rarr; the small warmed portion &rarr; fresh formula up to target. Nothing precious
-      is ever poured away.</p>
-      <p><strong>Store in 60 mL portions, not big ones.</strong> You can only waste what you
-      thawed &mdash; so never thaw more than one feed's worth.</p>
-      <p><strong>Try him on fridge-cold or room-temperature milk.</strong> Warming is a
-      preference, not a requirement. If he takes it cool, the whole problem disappears and
-      2 AM gets far easier. Worth one try at a daytime feed.</p>
-    </div>
-
-    <div class="box watch">
-      <h3>How long it keeps</h3>
-      <ul>
-        <li>Freshly expressed, room temperature &mdash; <strong>4 hours</strong></li>
-        <li>Fridge &mdash; <strong>4 days</strong></li>
-        <li>Freezer &mdash; <strong>6 months</strong> is best, 12 months acceptable</li>
-        <li>Thawed in the fridge &mdash; <strong>24 hours</strong>. <strong>Never refreeze.</strong></li>
-        <li>Warmed but not yet offered &mdash; use within <strong>2 hours</strong></li>
-        <li><strong>Once he has drunk from the bottle &mdash; finish within 2 hours, then throw
-        the rest away</strong>, however much is left. His mouth put bacteria in it.</li>
-      </ul>
-    </div>
-
-    <div class="box do">
-      <h3>Warming</h3>
-      <ul>
-        <li>Bottle warmer, or stand the bottle in a mug of warm water for 5&ndash;10 minutes</li>
-        <li><strong>Never a microwave.</strong> Hot spots scald, and it destroys the antibodies</li>
-        <li><strong>Swirl, do not shake</strong></li>
-        <li>Test on the inside of your wrist &mdash; it should feel like nothing at all</li>
-        <li>Separated layers are normal. Swirling brings the fat back in.</li>
-      </ul>
-    </div>
-
-    <div class="box watch">
-      <h3>Formula</h3>
-      <ul>
-        <li>Ready-to-feed is safest under 2 months &mdash; powder is not sterile</li>
-        <li>If using powder: water boiled and cooled to about 70&deg;C / 158&deg;F, then cooled
-        quickly. Water first, then a level scoop.</li>
-        <li><strong>Never dilute to stretch it, never concentrate it to add calories</strong></li>
-        <li>Made up &mdash; 2 hours at room temperature, 24 hours in the fridge, 1 hour once he starts</li>
-      </ul>
-    </div>
-
-    <button class="wide big" id="milkclose">Close</button>
-  </div>
-</div>
-
-<div class="ov" id="flagov">
-  <div class="inner">
-    <h2>Red flags</h2>
-
-    <div class="box stop">
-      <h3>Emergency room now &mdash; do not call first</h3>
-      <ul>
-        <li><strong>Rectal temperature 100.4&deg;F / 38.0&deg;C or higher.</strong> Give no fever medicine first.</li>
-        <li>Temperature below <strong>97.7&deg;F / 36.4&deg;C</strong> that will not come up with skin-to-skin and a blanket</li>
-        <li><strong>Trouble breathing:</strong> more than 60 breaths a minute at rest, grunting with each breath, nostrils flaring, or skin sucking in between or below the ribs</li>
-        <li><strong>Pauses in breathing longer than 20 seconds</strong>, or any pause with colour change</li>
-        <li><strong>Blue or dusky lips, tongue, or face.</strong> Blue hands and feet alone are normal.</li>
-        <li><strong>Limp, floppy, or will not wake</strong> enough to feed</li>
-        <li>Seizure, or rhythmic jerking you cannot stop by holding the limb</li>
-        <li>Soft spot <strong>bulging</strong> when he is upright and calm, or clearly <strong>sunken</strong></li>
-        <li><strong>Green or yellow-green vomit</strong>, forceful projectile vomiting, or blood in vomit or stool</li>
-        <li>Any fall, drop, or blow to the head</li>
-        <li>A cry that is <strong>high-pitched, shrill, or weak and moaning</strong> rather than a normal angry cry</li>
-      </ul>
-    </div>
-
-    <div class="box watch">
-      <h3>Call the pediatrician today &mdash; same day, not tomorrow</h3>
-      <ul>
-        <li><strong>Jaundice spreading below the belly button</strong> onto the legs or feet, or deepening in the whites of the eyes</li>
-        <li>Getting harder to wake for feeds, or feeding noticeably less than yesterday</li>
-        <li><strong>Fewer than 6 wet diapers a day</strong>, or no wet diaper in 8 hours</li>
-        <li>No stool at all in 24 hours during these first weeks</li>
-        <li>Stool that turns <strong>white, chalky, or grey</strong></li>
-        <li>Brick-red or orange powder in the diaper</li>
-        <li>Cord: spreading redness, pus, foul smell, or real bleeding</li>
-        <li>Straining to urinate, or dribbling rather than streaming</li>
-        <li>Inconsolable crying for hours that is unlike him</li>
-        <li><strong>Not back to birth weight by day 14</strong>, or gaining under 20 g a day for two days running</li>
-        <li>Any rash with blisters or fluid-filled spots</li>
-        <li><strong>Anyone with a cold sore has been near him</strong></li>
-        <li>Your gut says something is wrong. That counts. Say exactly that on the phone.</li>
-      </ul>
-    </div>
-
-    <div class="box">
-      <h3>Have ready when you call</h3>
-      <p style="margin:0;font-size:.92rem">Age in days and hours &middot; birth weight and last known weight &middot; rectal temperature &middot; wet and dirty diapers in the last 24 hours &middot; how much he has eaten and when he last fed &middot; how far down the jaundice reaches.</p>
-    </div>
-
-    <div class="box">
-      <h3>Numbers</h3>
-      <p style="margin:0;font-size:.92rem">Poison Control <span class="num">1-800-222-1222</span><br>Maternal Mental Health <span class="num">1-833-852-6262</span><br>Crisis line <span class="num">988</span></p>
-    </div>
-
-    <button class="wide big" id="flagclose">Close</button>
-  </div>
-</div>
-
-<script>
-(function () {
-  "use strict";
-
-  /* ---------- storage, defensively ---------- */
-  var store = null;
-  try { store = window.localStorage; store.setItem("__t", "1"); store.removeItem("__t"); }
-  catch (e) { store = null; }
-  function get(k, d) { try { var v = store && store.getItem(k); return v === null || v === undefined ? d : v; } catch (e) { return d; } }
-  function set(k, v) { try { store && store.setItem(k, v); } catch (e) {} }
-
-  var sess = null;
-  try { sess = window.sessionStorage; sess.setItem("__t", "1"); sess.removeItem("__t"); }
-  catch (e) { sess = null; }
-  function sget(k, d) { try { var v = sess && sess.getItem(k); return v === null || v === undefined ? d : v; } catch (e) { return d; } }
-  function sset(k, v) { try { sess && sess.setItem(k, v); } catch (e) {} }
-
-  /* ---------- fallback schedule, so the board works before the first fetch ---------- */
-  var CFG = {
-    version: 0,
-    targets: { perFeedMl: [68, 90], feedsPerDay: 9, pumpsPerDay: 6, wetPerDay: 6, dirtyPerDay: 3, maxGapMin: 180 },
-    profiles: { catchup: { label: "Catch-up", blocks: [
-      { t: "07:00", type: "FULL",   alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "10:00", type: "FULL",   alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "13:00", type: "FULL",   alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "16:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "18:30", type: "FULL",   alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "21:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Go to bed now.", tone: "rest" }] },
-      { t: "23:30", type: "BOTTLE", alarm: true,  actions: [{ who: "Dad", do: "Bottle feed, paced" }] },
-      { t: "02:00", type: "FULL",   alarm: true,  actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-      { t: "04:30", type: "BOTTLE", alarm: true,  actions: [{ who: "Mom", do: "Bottle feed, paced" }] }
-    ] } },
-    days: []
-  };
-  var cached = get("bcbrd:config", null);
-  if (cached) { try { CFG = JSON.parse(cached); } catch (e) {} }
-
-  /* ---------- helpers ---------- */
-  var DUR = { FULL: 55, BOTTLE: 25 };
-  var $ = function (id) { return document.getElementById(id); };
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
-  function t12(d) {
-    var h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? "PM" : "AM", hh = h % 12;
-    if (hh === 0) hh = 12;
-    return hh + ":" + pad(m) + " " + ap;
-  }
-  function addDays(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); x.setHours(0, 0, 0, 0); return x; }
-  function shiftMin() { return parseInt(sget("bcbrd:shift", "0"), 10) || 0; }
-  function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
-    });
-  }
-
-  function dayEntry(dateIso) {
-    var days = CFG.days || [], i;
-    for (i = 0; i < days.length; i++) { if (days[i].date === dateIso) return days[i]; }
-    if (!days.length) return null;
-    var last = days[days.length - 1];
-    var diff = Math.round((new Date(dateIso + "T12:00:00") - new Date(last.date + "T12:00:00")) / 86400000);
-    if (diff > 0) return { date: dateIso, n: last.n + diff, profile: last.profile, note: null };
-    return null;
-  }
-
-  function profileFor(dateIso) {
-    var e = dayEntry(dateIso);
-    var key = (e && e.profile) || Object.keys(CFG.profiles || {})[0];
-    return (CFG.profiles || {})[key] || { blocks: [] };
-  }
-
-  function instances(now) {
-    var out = [], base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var sh = shiftMin();
-    [-1, 0, 1].forEach(function (off) {
-      var d = addDays(base, off), di = iso(d);
-      (profileFor(di).blocks || []).forEach(function (b, i) {
-        var p = String(b.t).split(":");
-        var when = new Date(d.getFullYear(), d.getMonth(), d.getDate(),
-                            parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
-        if (sh) when = new Date(when.getTime() + sh * 60000);
-
-        // Prep actions are merged into the main block — no separate PREP block.
-        var acts = b.actions || [];
-        out.push({
-          key: di + "#" + i, when: when, type: b.type,
-          alarm: !!b.alarm,
-          actions: acts
+      /* ---------- helpers ---------- */
+      var DUR = { FULL: 55, BOTTLE: 25 };
+      var $ = function (id) { return document.getElementById(id); };
+      function pad(n) { return (n < 10 ? "0" : "") + n; }
+      function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+      function t12(d) {
+        var h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? "PM" : "AM", hh = h % 12;
+        if (hh === 0) hh = 12;
+        return hh + ":" + pad(m) + " " + ap;
+      }
+      function addDays(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); x.setHours(0, 0, 0, 0); return x; }
+      function shiftMin() { return parseInt(sget("bcbrd:shift", "0"), 10) || 0; }
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
         });
-      });
-    });
-    out.sort(function (a, b) { return a.when - b.when; });
-    return out;
-  }
-
-  function volText() {
-    var v = (CFG.targets && CFG.targets.perFeedMl) || [68, 90];
-    return v[0] + "–" + v[1] + " mL";
-  }
-  function prepMin() {
-    var p = CFG.targets && CFG.targets.prepMin;
-    return (p === 0 || p) ? p : 5;
-  }
-  function typeName(t) {
-    return t === "FULL" ? "Full feed" : "Bottle feed";
-  }
-  function durOf(b) { return DUR[b.type] || 30; }
-
-  // One-line summary for timeline rows, grouped per person so someone doing two
-  // things reads as "Mom: breastfeed both sides then pump" rather than losing the pump.
-  function summarise(b) {
-    var order = [], byWho = {};
-    (b.actions || []).forEach(function (a) {
-      if (a.tone) return;
-      var w = a.who;
-      if (!byWho[w]) { byWho[w] = []; order.push(w); }
-      byWho[w].push(String(a.do).split(/[,.]/)[0].toLowerCase());
-    });
-    return order.map(function (w) { return w + ": " + byWho[w].join(" then "); })
-                .join("   ·   ") || typeName(b.type);
-  }
-
-  function renderActs(b) {
-    if (!b || !b.actions || !b.actions.length) { $("acts").innerHTML = ""; return; }
-    $("acts").innerHTML = b.actions.map(function (a) {
-      var tone = a.tone ? ' data-tone="' + esc(a.tone) + '"' : "";
-      var wcls = /dad/i.test(a.who) ? "who dad" : "who";
-      return "<li" + tone + "><span class=\"" + wcls + "\">" + esc(a.who) + "</span>" +
-             "<span class=\"doing\">" + esc(a.do) + "</span></li>";
-    }).join("");
-  }
-
-  /* ---------- timeline focus ---------- */
-  // Scrolling the list means "I want to read ahead", so the depth-of-field drops away and
-  // the list stops re-centering. Both come back a few seconds after you stop touching it,
-  // so the next glance still lands on now.
-  var browsing = false, browseTimer = null, selfScroll = false;
-
-  function centerNow(smooth) {
-    var w = $("tlwrap"), nl = w.querySelector(".nowline");
-    if (!nl) return;
-    var delta = (nl.getBoundingClientRect().top - w.getBoundingClientRect().top)
-              - w.clientHeight / 2 + nl.offsetHeight / 2;
-    var top = Math.max(0, w.scrollTop + delta);
-    if (Math.abs(top - w.scrollTop) < 1) return;
-    selfScroll = true;                       // our own scroll must not re-arm browsing
-    if (smooth && w.scrollTo) w.scrollTo({ top: top, behavior: "smooth" });
-    else w.scrollTop = top;
-    setTimeout(function () { selfScroll = false; }, smooth ? 700 : 60);
-  }
-
-  function armBrowsing() {
-    if (selfScroll) return;
-    var w = $("tlwrap");
-    browsing = true;
-    w.classList.add("browsing");
-    clearTimeout(browseTimer);
-    browseTimer = setTimeout(function () {
-      browsing = false;
-      w.classList.remove("browsing");
-      centerNow(true);
-    }, 6000);
-  }
-
-  function fitHeroClock() {
-    var box = $("herotimebox");
-    var timeEl = $("herotime");
-    var ampmEl = $("heroampm");
-    var clockEl = $("heroclock");
-    if (!box || !timeEl || !clockEl) return;
-
-    if (document.body.classList.contains("now-active") || window.matchMedia("(orientation: landscape) and (min-width: 500px)").matches) {
-      timeEl.style.fontSize = "";
-      if (ampmEl) ampmEl.style.fontSize = "";
-      return;
-    }
-
-    var containerW = clockEl.clientWidth || window.innerWidth;
-    if (containerW <= 0) return;
-
-    timeEl.style.fontSize = "100px";
-    if (ampmEl) ampmEl.style.fontSize = "32px";
-
-    var textW = timeEl.getBoundingClientRect().width + (ampmEl ? ampmEl.getBoundingClientRect().width : 0);
-    if (textW > 0) {
-      var targetFs = (containerW / textW) * 100 * 0.98;
-      targetFs = Math.max(48, Math.min(320, targetFs));
-      timeEl.style.fontSize = targetFs.toFixed(1) + "px";
-      if (ampmEl) ampmEl.style.fontSize = (targetFs * 0.31).toFixed(1) + "px";
-    }
-  }
-  window.addEventListener("resize", fitHeroClock, { passive: true });
-  window.addEventListener("orientationchange", fitHeroClock, { passive: true });
-
-  /* ---------- render ---------- */
-  var lastTlSig = "";
-
-  function render() {
-    var now = new Date();
-    var list = instances(now);
-
-    var ct = t12(now).split(" ");
-    $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
-    paintDim(now);
-
-    var cur = null, next = null, i;
-    for (i = 0; i < list.length; i++) {
-      if (list[i].when <= now) cur = list[i];
-      else { next = list[i]; break; }
-    }
-    var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
-
-    /* --- FEEDING & ACTIVE STATE TOGGLES --- */
-    var isFeedingActive = inWindow && (cur.type === "FULL" || cur.type === "BOTTLE");
-    document.body.classList.toggle("feed-active", isFeedingActive);
-    document.body.classList.toggle("now-active", inWindow);
-
-    /* --- HERO CLOCK --- */
-    $("herotime").textContent = ct[0];
-    $("heroampm").textContent = ct[1] || "";
-    $("herodate").textContent = now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
-    fitHeroClock();
-
-    var todayIso = iso(now), entry = dayEntry(todayIso);
-    $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
-
-    /* --- NOW --- */
-    var np = $("nowpanel");
-    if (inWindow) {
-      np.className = "now glass active";
-      $("noweyebrow").innerHTML = '<span class="gdot"></span>Right now &middot; started ' + esc(t12(cur.when));
-      $("nowtitle").textContent = typeName(cur.type);
-      $("nowsub").textContent = "Target " + volText() + " this feed.";
-      renderActs(cur);
-    } else {
-      np.className = "now glass";
-      $("noweyebrow").innerHTML = "Right now";
-      $("nowtitle").textContent = "Rest";
-      $("nowsub").textContent = cur
-        ? "Last block was the " + t12(cur.when) + " " + typeName(cur.type).toLowerCase() +
-          ". Sleep, eat, or shower — whichever you have skipped."
-        : "Nothing scheduled yet.";
-      $("acts").innerHTML = "";
-    }
-
-    /* --- HERO NEXT --- */
-    var hn = $("heronext");
-    if (next) {
-      var ms = next.when - now;
-      var h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
-      if (ringing) {
-        $("herolabel").textContent = "FEED DUE";
-        hn.className = "hero-next glass late";
-        $("herocountdown").textContent = "+" + Math.max(0, Math.round((now - ringing.when) / 60000)) + "m";
-        $("herowhat").innerHTML = "Since <b>" + esc(t12(ringing.when)) + "</b> — feed him now.";
-      } else {
-        $("herolabel").textContent = "NEXT UP";
-        hn.className = "hero-next glass" + (ms < 30 * 60000 ? " soon" : "");
-        $("herocountdown").textContent = (h > 0 ? h + "h " : "") + m + "m";
-        $("herowhat").innerHTML = "<b>" + esc(t12(next.when)) + "</b> &middot; " +
-          esc(typeName(next.type)) + " &middot; " + esc(volText());
       }
-    } else {
-      $("herolabel").textContent = "NEXT UP";
-      $("herocountdown").textContent = "—";
-      $("herowhat").textContent = "No more blocks scheduled.";
-      hn.className = "hero-next glass";
-    }
 
-    /* --- TIMELINE (iOS-picker style: sharp at now, blurring away in both directions) --- */
-    var from = now.getTime() - 5 * 3600000, to = now.getTime() + 9 * 3600000;
-    var vis = list.filter(function (b) { return b.when >= from && b.when <= to; });
-    var sig = vis.map(function (b) { return b.key; }).join(",") + "|" +
-              (cur ? cur.key : "") + "|" + inWindow + "|" + (ringing ? 1 : 0);
+      function dayEntry(dateIso) {
+        var days = CFG.days || [], i;
+        for (i = 0; i < days.length; i++) { if (days[i].date === dateIso) return days[i]; }
+        if (!days.length) return null;
+        var last = days[days.length - 1];
+        var diff = Math.round((new Date(dateIso + "T12:00:00") - new Date(last.date + "T12:00:00")) / 86400000);
+        if (diff > 0) return { date: dateIso, n: last.n + diff, profile: last.profile, note: null };
+        return null;
+      }
 
-    if (sig !== lastTlSig) {
-      lastTlSig = sig;
-      var w = $("tlwrap"), html = "", placed = false, pastN = 0, futN = 0;
-      var keptScroll = w.scrollTop;
+      function profileFor(dateIso) {
+        var e = dayEntry(dateIso);
+        var key = (e && e.profile) || Object.keys(CFG.profiles || {})[0];
+        return (CFG.profiles || {})[key] || { blocks: [] };
+      }
 
-      var pastTotal = vis.filter(function (b) { return b.when <= now; }).length;
+      function instances(now) {
+        var out = [], base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var sh = shiftMin();
+        [-1, 0, 1].forEach(function (off) {
+          var d = addDays(base, off), di = iso(d);
+          (profileFor(di).blocks || []).forEach(function (b, i) {
+            var p = String(b.t).split(":");
+            var when = new Date(d.getFullYear(), d.getMonth(), d.getDate(),
+              parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
+            if (sh) when = new Date(when.getTime() + sh * 60000);
 
-      vis.forEach(function (b) {
-        if (!placed && b.when > now) {
-          html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
-          placed = true;
+            // Prep actions are merged into the main block — no separate PREP block.
+            var acts = b.actions || [];
+            out.push({
+              key: di + "#" + i, when: when, type: b.type,
+              alarm: !!b.alarm,
+              actions: acts
+            });
+          });
+        });
+        out.sort(function (a, b) { return a.when - b.when; });
+        return out;
+      }
+
+      function volText() {
+        var v = (CFG.targets && CFG.targets.perFeedMl) || [68, 90];
+        return v[0] + "–" + v[1] + " mL";
+      }
+      function prepMin() {
+        var p = CFG.targets && CFG.targets.prepMin;
+        return (p === 0 || p) ? p : 5;
+      }
+      function typeName(t) {
+        return t === "FULL" ? "Full feed" : "Bottle feed";
+      }
+      function durOf(b) { return DUR[b.type] || 30; }
+
+      // One-line summary for timeline rows, grouped per person so someone doing two
+      // things reads as "Mom: breastfeed both sides then pump" rather than losing the pump.
+      function summarise(b) {
+        var order = [], byWho = {};
+        (b.actions || []).forEach(function (a) {
+          if (a.tone) return;
+          var w = a.who;
+          if (!byWho[w]) { byWho[w] = []; order.push(w); }
+          byWho[w].push(String(a.do).split(/[,.]/)[0].toLowerCase());
+        });
+        return order.map(function (w) { return w + ": " + byWho[w].join(" then "); })
+          .join("   ·   ") || typeName(b.type);
+      }
+
+      function renderActs(b) {
+        if (!b || !b.actions || !b.actions.length) { $("acts").innerHTML = ""; return; }
+        $("acts").innerHTML = b.actions.map(function (a) {
+          var tone = a.tone ? ' data-tone="' + esc(a.tone) + '"' : "";
+          var wcls = /dad/i.test(a.who) ? "who dad" : "who";
+          return "<li" + tone + "><span class=\"" + wcls + "\">" + esc(a.who) + "</span>" +
+            "<span class=\"doing\">" + esc(a.do) + "</span></li>";
+        }).join("");
+      }
+
+      /* ---------- timeline focus ---------- */
+      // Scrolling the list means "I want to read ahead", so the depth-of-field drops away and
+      // the list stops re-centering. Both come back a few seconds after you stop touching it,
+      // so the next glance still lands on now.
+      var browsing = false, browseTimer = null, selfScroll = false;
+
+      function centerNow(smooth) {
+        var w = $("tlwrap"), nl = w.querySelector(".nowline");
+        if (!nl) return;
+        var delta = (nl.getBoundingClientRect().top - w.getBoundingClientRect().top)
+          - w.clientHeight / 2 + nl.offsetHeight / 2;
+        var top = Math.max(0, w.scrollTop + delta);
+        if (Math.abs(top - w.scrollTop) < 1) return;
+        selfScroll = true;                       // our own scroll must not re-arm browsing
+        if (smooth && w.scrollTo) w.scrollTo({ top: top, behavior: "smooth" });
+        else w.scrollTop = top;
+        setTimeout(function () { selfScroll = false; }, smooth ? 700 : 60);
+      }
+
+      function armBrowsing() {
+        if (selfScroll) return;
+        var w = $("tlwrap");
+        browsing = true;
+        w.classList.add("browsing");
+        clearTimeout(browseTimer);
+        browseTimer = setTimeout(function () {
+          browsing = false;
+          w.classList.remove("browsing");
+          centerNow(true);
+        }, 6000);
+      }
+
+      function fitHeroClock() {
+        var box = $("herotimebox");
+        var timeEl = $("herotime");
+        var ampmEl = $("heroampm");
+        var clockEl = $("heroclock");
+        if (!box || !timeEl || !clockEl) return;
+
+        if (document.body.classList.contains("now-active") || window.matchMedia("(orientation: landscape) and (min-width: 500px)").matches) {
+          timeEl.style.fontSize = "";
+          if (ampmEl) ampmEl.style.fontSize = "";
+          return;
         }
-        var isCur = cur && b.key === cur.key && inWindow;
-        var blur, op;
-        if (isCur) { blur = 0; op = 1; }
-        else if (b.when <= now) {
-          pastN++;
-          var d = pastTotal - pastN + 1;
-          blur = Math.min(3.4, d * 1.5); op = Math.max(.2, .62 - d * .13);
+
+        var containerW = clockEl.clientWidth || window.innerWidth;
+        if (containerW <= 0) return;
+
+        timeEl.style.fontSize = "100px";
+        if (ampmEl) ampmEl.style.fontSize = "32px";
+
+        var textW = timeEl.getBoundingClientRect().width + (ampmEl ? ampmEl.getBoundingClientRect().width : 0);
+        if (textW > 0) {
+          var targetFs = (containerW / textW) * 100 * 0.98;
+          targetFs = Math.max(48, Math.min(320, targetFs));
+          timeEl.style.fontSize = targetFs.toFixed(1) + "px";
+          if (ampmEl) ampmEl.style.fontSize = (targetFs * 0.31).toFixed(1) + "px";
+        }
+      }
+      window.addEventListener("resize", fitHeroClock, { passive: true });
+      window.addEventListener("orientationchange", fitHeroClock, { passive: true });
+
+      /* ---------- render ---------- */
+      var lastTlSig = "";
+
+      function render() {
+        var now = new Date();
+        var list = instances(now);
+
+        var ct = t12(now).split(" ");
+        $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
+        paintDim(now);
+
+        var cur = null, next = null, i;
+        for (i = 0; i < list.length; i++) {
+          if (list[i].when <= now) cur = list[i];
+          else { next = list[i]; break; }
+        }
+        var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
+
+        /* --- FEEDING & ACTIVE STATE TOGGLES --- */
+        var isFeedingActive = inWindow && (cur.type === "FULL" || cur.type === "BOTTLE");
+        document.body.classList.toggle("feed-active", isFeedingActive);
+        document.body.classList.toggle("now-active", inWindow);
+
+        /* --- HERO CLOCK --- */
+        $("herotime").textContent = ct[0];
+        $("heroampm").textContent = ct[1] || "";
+        $("herodate").textContent = now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+        fitHeroClock();
+
+        var todayIso = iso(now), entry = dayEntry(todayIso);
+        $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
+
+        /* --- NOW --- */
+        var np = $("nowpanel");
+        if (inWindow) {
+          np.className = "now glass active";
+          $("noweyebrow").innerHTML = '<span class="gdot"></span>Right now &middot; started ' + esc(t12(cur.when));
+          $("nowtitle").textContent = typeName(cur.type);
+          $("nowsub").textContent = "Target " + volText() + " this feed.";
+          renderActs(cur);
         } else {
-          futN++;
-          blur = Math.min(2.8, (futN - 1) * 1.15); op = Math.max(.26, 1 - (futN - 1) * .2);
+          np.className = "now glass";
+          $("noweyebrow").innerHTML = "Right now";
+          $("nowtitle").textContent = "Rest";
+          $("nowsub").textContent = cur
+            ? "Last block was the " + t12(cur.when) + " " + typeName(cur.type).toLowerCase() +
+            ". Sleep, eat, or shower — whichever you have skipped."
+            : "Nothing scheduled yet.";
+          $("acts").innerHTML = "";
         }
-        html += '<div class="row' + (isCur ? " cur" : "") +
-                (b.alarm ? " alarmed" : "") +
-                '" style="--b:' + blur.toFixed(2) + 'px;--o:' + op.toFixed(2) + '">' +
-                '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
-                '<span><span class="rtype">' + esc(typeName(b.type)) + '</span>' +
-                '<span class="rmeta">' + esc(summarise(b)) + '</span></span></div>';
-      });
-      if (!placed) html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
-      w.innerHTML = html || '<div class="row"><span class="rmeta">No schedule loaded.</span></div>';
-      // Don't drag them back to "now" mid-read: innerHTML resets scroll, so put it back.
-      if (browsing) w.scrollTop = keptScroll;
-      else centerNow(false);
-    } else {
-      var nb = $("tlwrap").querySelector(".nowline b");
-      if (nb) nb.textContent = "now " + t12(now);
-    }
 
-    /* --- targets --- */
-    var t = CFG.targets || {};
-    $("targets").innerHTML =
-      '<span><b>' + (t.feedsPerDay || 9) + '</b> feeds a day</span>' +
-      '<span><b>' + volText() + '</b> each</span>' +
-      '<span><b>' + (t.pumpsPerDay || 6) + '</b> pumps</span>' +
-      '<span>max gap <b>' + Math.round((t.maxGapMin || 180) / 60) + 'h</b></span>' +
-      '<span><b>' + (t.wetPerDay || 6) + '+</b> wet</span>' +
-      '<span><b>' + (t.dirtyPerDay || 3) + '+</b> dirty</span>' +
-      '<span>Mom <b>' + (t.momWaterL || 3) + ' L</b> water</span>' +
-      '<span>Mom <b>+' + (t.momExtraCal || 500) + '</b> cal</span>';
+        /* --- HERO NEXT --- */
+        var hn = $("heronext");
+        if (next) {
+          var ms = next.when - now;
+          var h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
+          if (ringing) {
+            $("herolabel").textContent = "FEED DUE";
+            hn.className = "hero-next glass late";
+            $("herocountdown").textContent = "+" + Math.max(0, Math.round((now - ringing.when) / 60000)) + "m";
+            $("herowhat").innerHTML = "Since <b>" + esc(t12(ringing.when)) + "</b> — feed him now.";
+          } else {
+            $("herolabel").textContent = "NEXT UP";
+            hn.className = "hero-next glass" + (ms < 30 * 60000 ? " soon" : "");
+            $("herocountdown").textContent = (h > 0 ? h + "h " : "") + m + "m";
+            $("herowhat").innerHTML = "<b>" + esc(t12(next.when)) + "</b> &middot; " +
+              esc(typeName(next.type)) + " &middot; " + esc(volText());
+          }
+        } else {
+          $("herolabel").textContent = "NEXT UP";
+          $("herocountdown").textContent = "—";
+          $("herowhat").textContent = "No more blocks scheduled.";
+          hn.className = "hero-next glass";
+        }
 
-    if (entry && entry.note) { $("daynote").hidden = false; $("daynote").textContent = entry.note; }
-    else { $("daynote").hidden = true; }
+        /* --- TIMELINE (iOS-picker style: sharp at now, blurring away in both directions) --- */
+        var from = now.getTime() - 5 * 3600000, to = now.getTime() + 9 * 3600000;
+        var vis = list.filter(function (b) { return b.when >= from && b.when <= to; });
+        var sig = vis.map(function (b) { return b.key; }).join(",") + "|" +
+          (cur ? cur.key : "") + "|" + inWindow + "|" + (ringing ? 1 : 0);
 
-    if (get("bcbrd:theme", "auto") === "auto") {
-      var hr = now.getHours();
-      document.documentElement.setAttribute("data-theme", (hr >= 19 || hr < 7) ? "dark" : "light");
-    }
+        if (sig !== lastTlSig) {
+          lastTlSig = sig;
+          var w = $("tlwrap"), html = "", placed = false, pastN = 0, futN = 0;
+          var keptScroll = w.scrollTop;
 
-    checkAlarms(list, now);
-  }
+          var pastTotal = vis.filter(function (b) { return b.when <= now; }).length;
 
-  /* ---------- alarms ---------- */
-  var ac = null, armed = get("bcbrd:armed", "0") === "1", ringing = null, ringTimer = null;
+          vis.forEach(function (b) {
+            if (!placed && b.when > now) {
+              html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
+              placed = true;
+            }
+            var isCur = cur && b.key === cur.key && inWindow;
+            var blur, op;
+            if (isCur) { blur = 0; op = 1; }
+            else if (b.when <= now) {
+              pastN++;
+              var d = pastTotal - pastN + 1;
+              blur = Math.min(3.4, d * 1.5); op = Math.max(.2, .62 - d * .13);
+            } else {
+              futN++;
+              blur = Math.min(2.8, (futN - 1) * 1.15); op = Math.max(.26, 1 - (futN - 1) * .2);
+            }
+            html += '<div class="row' + (isCur ? " cur" : "") +
+              (b.alarm ? " alarmed" : "") +
+              '" style="--b:' + blur.toFixed(2) + 'px;--o:' + op.toFixed(2) + '">' +
+              '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
+              '<span><span class="rtype">' + esc(typeName(b.type)) + '</span>' +
+              '<span class="rmeta">' + esc(summarise(b)) + '</span></span></div>';
+          });
+          if (!placed) html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
+          w.innerHTML = html || '<div class="row"><span class="rmeta">No schedule loaded.</span></div>';
+          // Don't drag them back to "now" mid-read: innerHTML resets scroll, so put it back.
+          if (browsing) w.scrollTop = keptScroll;
+          else centerNow(false);
+        } else {
+          var nb = $("tlwrap").querySelector(".nowline b");
+          if (nb) nb.textContent = "now " + t12(now);
+        }
 
-  function unlockAudio() {
-    try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!ac && AC) ac = new AC();
-      if (ac && ac.state === "suspended") ac.resume();
-    } catch (e) {}
-  }
-  function beep() {
-    if (!ac) return;
-    var t0 = ac.currentTime;
-    [0, 0.3, 0.6].forEach(function (off, i) {
-      var o = ac.createOscillator(), g = ac.createGain();
-      o.type = "sine";
-      o.frequency.setValueAtTime(680 + i * 200, t0 + off);
-      g.gain.setValueAtTime(0.0001, t0 + off);
-      g.gain.exponentialRampToValueAtTime(0.5, t0 + off + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.26);
-      o.connect(g); g.connect(ac.destination);
-      o.start(t0 + off); o.stop(t0 + off + 0.28);
-    });
-    if (navigator.vibrate) { try { navigator.vibrate([300, 150, 300]); } catch (e) {} }
-  }
-  function startRinging(b) {
-    ringing = b;
-    $("alarmtext").textContent = t12(b.when) + " — " + typeName(b.type).toLowerCase() + ".";
-    $("alarmbar").className = "alarmbar on";
-    beep();
-    clearInterval(ringTimer);
-    ringTimer = setInterval(beep, 120000);
-    lastTlSig = "";
-  }
-  function stopRinging() {
-    ringing = null;
-    clearInterval(ringTimer); ringTimer = null;
-    $("alarmbar").className = "alarmbar";
-    lastTlSig = "";
-  }
-  function checkAlarms(list, now) {
-    if (!armed || ringing) return;
-    var fired = sget("bcbrd:fired", "").split(",");
-    for (var i = 0; i < list.length; i++) {
-      var b = list[i];
-      if (!b.alarm) continue;
-      var late = now - b.when;
-      if (late >= 0 && late < 10 * 60000 && fired.indexOf(b.key) === -1) {
-        fired.push(b.key);
-        sset("bcbrd:fired", fired.slice(-40).join(","));
-        startRinging(b);
-        return;
+        /* --- targets --- */
+        var t = CFG.targets || {};
+        $("targets").innerHTML =
+          '<span><b>' + (t.feedsPerDay || 9) + '</b> feeds a day</span>' +
+          '<span><b>' + volText() + '</b> each</span>' +
+          '<span><b>' + (t.pumpsPerDay || 6) + '</b> pumps</span>' +
+          '<span>max gap <b>' + Math.round((t.maxGapMin || 180) / 60) + 'h</b></span>' +
+          '<span><b>' + (t.wetPerDay || 6) + '+</b> wet</span>' +
+          '<span><b>' + (t.dirtyPerDay || 3) + '+</b> dirty</span>' +
+          '<span>Mom <b>' + (t.momWaterL || 3) + ' L</b> water</span>' +
+          '<span>Mom <b>+' + (t.momExtraCal || 500) + '</b> cal</span>';
+
+        if (entry && entry.note) { $("daynote").hidden = false; $("daynote").textContent = entry.note; }
+        else { $("daynote").hidden = true; }
+
+        if (get("bcbrd:theme", "auto") === "auto") {
+          var hr = now.getHours();
+          document.documentElement.setAttribute("data-theme", (hr >= 19 || hr < 7) ? "dark" : "light");
+        }
+
+        checkAlarms(list, now);
       }
-    }
-  }
-  $("dismissbtn").addEventListener("click", stopRinging);
 
-  function paintArm() {
-    $("armbtn").textContent = armed ? "Alarms armed — tap to test" : "Arm alarms";
-    $("armbtn").setAttribute("aria-pressed", armed ? "true" : "false");
-  }
-  $("armbtn").addEventListener("click", function () {
-    unlockAudio(); armed = true; set("bcbrd:armed", "1"); paintArm(); beep();
-  });
-  paintArm();
-  ["touchstart", "click"].forEach(function (ev) {
-    document.addEventListener(ev, function once() {
-      unlockAudio();
-      document.removeEventListener(ev, once);
-    }, { passive: true });
-  });
+      /* ---------- alarms ---------- */
+      var ac = null, armed = get("bcbrd:armed", "0") === "1", ringing = null, ringTimer = null;
 
-  /* ---------- shift ---------- */
-  function paintShift() {
-    var s = shiftMin();
-    $("shiftbtn").textContent = s ? "Shifted +" + s + " min — reset" : "Running late — shift 30 min";
-    $("shiftbtn").setAttribute("aria-pressed", s ? "true" : "false");
-  }
-  $("shiftbtn").addEventListener("click", function () {
-    sset("bcbrd:shift", shiftMin() ? "0" : "30");
-    sset("bcbrd:fired", "");
-    lastTlSig = ""; paintShift(); render();
-  });
-  paintShift();
+      function unlockAudio() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!ac && AC) ac = new AC();
+          if (ac && ac.state === "suspended") ac.resume();
+        } catch (e) { }
+      }
+      function beep() {
+        if (!ac) return;
+        var t0 = ac.currentTime;
+        [0, 0.3, 0.6].forEach(function (off, i) {
+          var o = ac.createOscillator(), g = ac.createGain();
+          o.type = "sine";
+          o.frequency.setValueAtTime(680 + i * 200, t0 + off);
+          g.gain.setValueAtTime(0.0001, t0 + off);
+          g.gain.exponentialRampToValueAtTime(0.5, t0 + off + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.26);
+          o.connect(g); g.connect(ac.destination);
+          o.start(t0 + off); o.stop(t0 + off + 0.28);
+        });
+        if (navigator.vibrate) { try { navigator.vibrate([300, 150, 300]); } catch (e) { } }
+      }
+      function startRinging(b) {
+        ringing = b;
+        $("alarmtext").textContent = t12(b.when) + " — " + typeName(b.type).toLowerCase() + ".";
+        $("alarmbar").className = "alarmbar on";
+        beep();
+        clearInterval(ringTimer);
+        ringTimer = setInterval(beep, 120000);
+        lastTlSig = "";
+      }
+      function stopRinging() {
+        ringing = null;
+        clearInterval(ringTimer); ringTimer = null;
+        $("alarmbar").className = "alarmbar";
+        lastTlSig = "";
+      }
+      function checkAlarms(list, now) {
+        if (!armed || ringing) return;
+        var fired = sget("bcbrd:fired", "").split(",");
+        for (var i = 0; i < list.length; i++) {
+          var b = list[i];
+          if (!b.alarm) continue;
+          var late = now - b.when;
+          if (late >= 0 && late < 10 * 60000 && fired.indexOf(b.key) === -1) {
+            fired.push(b.key);
+            sset("bcbrd:fired", fired.slice(-40).join(","));
+            startRinging(b);
+            return;
+          }
+        }
+      }
+      $("dismissbtn").addEventListener("click", stopRinging);
 
-  /* ---------- keep the screen on ---------- */
-  var lock = null, wantLock = get("bcbrd:wake", "1") === "1";
-  function paintWake() {
-    $("wakebtn").setAttribute("aria-pressed", wantLock ? "true" : "false");
-    $("wakebtn").textContent = wantLock ? "Screen stays on" : "Let screen sleep";
-  }
-  function acquire() {
-    if (!wantLock || !navigator.wakeLock || lock) return;
-    navigator.wakeLock.request("screen").then(function (l) {
-      lock = l;
-      l.addEventListener("release", function () { lock = null; });
-    }).catch(function () {});
-  }
-  function release() { if (lock) { try { lock.release(); } catch (e) {} lock = null; } }
-  $("wakebtn").addEventListener("click", function () {
-    wantLock = !wantLock; set("bcbrd:wake", wantLock ? "1" : "0");
-    paintWake(); if (wantLock) { acquire(); } else { release(); }
-  });
-  // Android drops the lock whenever the tab is backgrounded, so re-take it often.
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
-      acquire();
-      clearTimeout(browseTimer);
-      browsing = false;
-      $("tlwrap").classList.remove("browsing");   // a fresh look always starts at now
-      lastTlSig = ""; render();
-    }
-  });
+      function paintArm() {
+        $("armbtn").textContent = armed ? "Alarms armed — tap to test" : "Arm alarms";
+        $("armbtn").setAttribute("aria-pressed", armed ? "true" : "false");
+      }
+      $("armbtn").addEventListener("click", function () {
+        unlockAudio(); armed = true; set("bcbrd:armed", "1"); paintArm(); beep();
+      });
+      paintArm();
+      ["touchstart", "click"].forEach(function (ev) {
+        document.addEventListener(ev, function once() {
+          unlockAudio();
+          document.removeEventListener(ev, once);
+        }, { passive: true });
+      });
 
-  $("tlwrap").addEventListener("scroll", armBrowsing, { passive: true });
-  ["click", "touchstart"].forEach(function (ev) {
-    document.addEventListener(ev, acquire, { passive: true });
-  });
-  setInterval(acquire, 20000);
-  paintWake(); acquire();
+      /* ---------- shift ---------- */
+      function paintShift() {
+        var s = shiftMin();
+        $("shiftbtn").textContent = s ? "Shifted +" + s + " min — reset" : "Running late — shift 30 min";
+        $("shiftbtn").setAttribute("aria-pressed", s ? "true" : "false");
+      }
+      $("shiftbtn").addEventListener("click", function () {
+        sset("bcbrd:shift", shiftMin() ? "0" : "30");
+        sset("bcbrd:fired", "");
+        lastTlSig = ""; paintShift(); render();
+      });
+      paintShift();
 
-  /* ---------- full screen ---------- */
-  $("fsbtn").addEventListener("click", function () {
-    var el = document.documentElement;
-    if (!document.fullscreenElement) {
-      (el.requestFullscreen || el.webkitRequestFullscreen || function () {}).call(el);
-      $("fsbtn").setAttribute("aria-pressed", "true");
-    } else {
-      (document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
-      $("fsbtn").setAttribute("aria-pressed", "false");
-    }
-    acquire();
-  });
+      /* ---------- keep the screen on ---------- */
+      var lock = null, wantLock = get("bcbrd:wake", "1") === "1";
+      function paintWake() {
+        $("wakebtn").setAttribute("aria-pressed", wantLock ? "true" : "false");
+        $("wakebtn").textContent = wantLock ? "Screen stays on" : "Let screen sleep";
+      }
+      function acquire() {
+        if (!wantLock || !navigator.wakeLock || lock) return;
+        navigator.wakeLock.request("screen").then(function (l) {
+          lock = l;
+          l.addEventListener("release", function () { lock = null; });
+        }).catch(function () { });
+      }
+      function release() { if (lock) { try { lock.release(); } catch (e) { } lock = null; } }
+      $("wakebtn").addEventListener("click", function () {
+        wantLock = !wantLock; set("bcbrd:wake", wantLock ? "1" : "0");
+        paintWake(); if (wantLock) { acquire(); } else { release(); }
+      });
+      // Android drops the lock whenever the tab is backgrounded, so re-take it often.
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+          acquire();
+          clearTimeout(browseTimer);
+          browsing = false;
+          $("tlwrap").classList.remove("browsing");   // a fresh look always starts at now
+          lastTlSig = ""; render();
+        }
+      });
 
-  /* ---------- theme ---------- */
-  function paintTheme() {
-    var m = get("bcbrd:theme", "auto");
-    $("themebtn").textContent = "Theme: " + m;
-    if (m !== "auto") document.documentElement.setAttribute("data-theme", m);
-  }
-  $("themebtn").addEventListener("click", function () {
-    var order = ["auto", "dark", "light"], m = get("bcbrd:theme", "auto");
-    set("bcbrd:theme", order[(order.indexOf(m) + 1) % 3]);
-    paintTheme(); render();
-  });
-  paintTheme();
+      $("tlwrap").addEventListener("scroll", armBrowsing, { passive: true });
+      ["click", "touchstart"].forEach(function (ev) {
+        document.addEventListener(ev, acquire, { passive: true });
+      });
+      setInterval(acquire, 20000);
+      paintWake(); acquire();
 
-  /* ---------- red flags ---------- */
-  $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; paintDim(); });
-  $("milkclose").addEventListener("click", function () {
-    $("milkov").className = "ov"; window.scrollTo(0, 0); paintDim();
-  });
+      /* ---------- full screen ---------- */
+      $("fsbtn").addEventListener("click", function () {
+        var el = document.documentElement;
+        if (!document.fullscreenElement) {
+          (el.requestFullscreen || el.webkitRequestFullscreen || function () { }).call(el);
+          $("fsbtn").setAttribute("aria-pressed", "true");
+        } else {
+          (document.exitFullscreen || document.webkitExitFullscreen || function () { }).call(document);
+          $("fsbtn").setAttribute("aria-pressed", "false");
+        }
+        acquire();
+      });
 
-  $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; paintDim(); });
-  $("flagclose").addEventListener("click", function () {
-    $("flagov").className = "ov"; window.scrollTo(0, 0); paintDim();
-  });
+      /* ---------- theme ---------- */
+      function paintTheme() {
+        var m = get("bcbrd:theme", "auto");
+        $("themebtn").textContent = "Theme: " + m;
+        if (m !== "auto") document.documentElement.setAttribute("data-theme", m);
+      }
+      $("themebtn").addEventListener("click", function () {
+        var order = ["auto", "dark", "light"], m = get("bcbrd:theme", "auto");
+        set("bcbrd:theme", order[(order.indexOf(m) + 1) % 3]);
+        paintTheme(); render();
+      });
+      paintTheme();
 
-  /* ---------- night dim + change light ----------
-     No browser can raise the phone's hardware brightness, so this works the other way
-     round: leave Android at maximum and let the board hold itself dim overnight. The
-     light button just lifts the dim, which is what "full bright" actually means here. */
-  var lightOn = false, lightTimer = null;
+      /* ---------- red flags ---------- */
+      $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; paintDim(); });
+      $("milkclose").addEventListener("click", function () {
+        $("milkov").className = "ov"; window.scrollTo(0, 0); paintDim();
+      });
 
-  function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
-  function nightCfg() {
-    var n = CFG.night || {};
-    return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
-  }
-  function inNight(now) {
-    var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);
-    return f > t ? (m >= f || m < t) : (m >= f && m < t);
-  }
-  function paintDim(now) {
-    now = now || new Date();
-    // Never dim over an alarm or the red-flag list — those are the moments you must see.
-    var hide = lightOn || ringing ||
-               $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
-    $("dimmer").style.opacity = (!hide && inNight(now)) ? nightCfg().dim : 0;
-  }
+      $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; paintDim(); });
+      $("flagclose").addEventListener("click", function () {
+        $("flagov").className = "ov"; window.scrollTo(0, 0); paintDim();
+      });
 
-  function openLight() {
-    lightOn = true;
-    $("lightpanel").classList.add("on");
-    paintDim();
-    acquire();                                   // never let it sleep mid-change
-    clearTimeout(lightTimer);
-    lightTimer = setTimeout(closeLight, 240000); // 4 min, in case it is left on
-  }
-  function closeLight() {
-    lightOn = false;
-    $("lightpanel").classList.remove("on");
-    clearTimeout(lightTimer);
-    paintDim();
-  }
-  $("fab").addEventListener("click", openLight);
-  $("lightpanel").addEventListener("click", closeLight);
+      /* ---------- night dim + change light ----------
+         No browser can raise the phone's hardware brightness, so this works the other way
+         round: leave Android at maximum and let the board hold itself dim overnight. The
+         light button just lifts the dim, which is what "full bright" actually means here. */
+      var lightOn = false, lightTimer = null;
 
-  /* ---------- schedule polling ---------- */
-  function loadConfig() {
-    fetch("config.json?t=" + new Date().getTime(), { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (j) {
-        if (j.version !== CFG.version) lastTlSig = "";
-        CFG = j;
-        set("bcbrd:config", JSON.stringify(j));
-        $("dot").className = "dot";
-        $("cfgstamp").textContent = " Schedule loaded " + t12(new Date()) + ".";
-        render();
-      })
-      .catch(function () { $("dot").className = "dot off"; });
-  }
-  loadConfig();
-  setInterval(loadConfig, 60000);
+      function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
+      function nightCfg() {
+        var n = CFG.night || {};
+        return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
+      }
+      function inNight(now) {
+        var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);
+        return f > t ? (m >= f || m < t) : (m >= f && m < t);
+      }
+      function paintDim(now) {
+        now = now || new Date();
+        // Never dim over an alarm or the red-flag list — those are the moments you must see.
+        var hide = lightOn || ringing ||
+          $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
+        $("dimmer").style.opacity = (!hide && inNight(now)) ? nightCfg().dim : 0;
+      }
 
-  /* ---------- tick ---------- */
-  render();
-  setInterval(render, 1000);
+      function openLight() {
+        lightOn = true;
+        $("lightpanel").classList.add("on");
+        paintDim();
+        acquire();                                   // never let it sleep mid-change
+        clearTimeout(lightTimer);
+        lightTimer = setTimeout(closeLight, 240000); // 4 min, in case it is left on
+      }
+      function closeLight() {
+        lightOn = false;
+        $("lightpanel").classList.remove("on");
+        clearTimeout(lightTimer);
+        paintDim();
+      }
+      $("fab").addEventListener("click", openLight);
+      $("lightpanel").addEventListener("click", closeLight);
 
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").catch(function () {});
-    });
-  }
-})();
-</script>
+      /* ---------- schedule polling ---------- */
+      function loadConfig() {
+        fetch("config.json?t=" + new Date().getTime(), { cache: "no-store" })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function (j) {
+            if (j.version !== CFG.version) lastTlSig = "";
+            CFG = j;
+            set("bcbrd:config", JSON.stringify(j));
+            $("dot").className = "dot";
+            $("cfgstamp").textContent = " Schedule loaded " + t12(new Date()) + ".";
+            render();
+          })
+          .catch(function () { $("dot").className = "dot off"; });
+      }
+      loadConfig();
+      setInterval(loadConfig, 60000);
+
+      /* ---------- tick ---------- */
+      render();
+      setInterval(render, 1000);
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () { });
+        });
+      }
+    })();
+  </script>
 </body>
+
 </html>
