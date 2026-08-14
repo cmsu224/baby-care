@@ -108,24 +108,25 @@ body.feed-active {
 /* These two panels dominate the screen so they're visible across the room */
 .hero-wrap {
   display: flex; flex-direction: column; gap: .5rem;
-  width: 100%; padding: 0 .4rem;
+  width: 100%; padding: 0;
   margin-bottom: .7rem;
 }
 
 .hero-clock {
   width: 100%; text-align: center;
-  padding: .5rem 0;
+  padding: .3rem 0;
+  border-radius: var(--r-sm);
 }
 .hero-clock .hero-time {
-  font-size: clamp(4rem, 22vw, 14rem);
+  font-size: clamp(4rem, 30vw, 14rem);
   font-weight: 800; font-variant-numeric: tabular-nums;
-  letter-spacing: -.04em; line-height: .92;
+  letter-spacing: -.05em; line-height: .88;
   color: var(--ink);
 }
 .hero-clock .hero-ampm {
-  font-size: clamp(1.2rem, 5vw, 3.5rem);
+  font-size: clamp(1.4rem, 7vw, 4rem);
   font-weight: 700; color: var(--muted);
-  margin-left: .15em; letter-spacing: -.01em;
+  margin-left: .08em; letter-spacing: -.01em;
 }
 .hero-clock .hero-date {
   font-size: clamp(.7rem, 2.5vw, 1.4rem);
@@ -136,6 +137,8 @@ body.feed-active {
 .hero-next {
   width: 100%; text-align: center;
   padding: .6rem .8rem .7rem;
+  background: color-mix(in srgb, var(--accent) 8%, var(--glass));
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .hero-next .hero-label {
   font-size: clamp(.6rem, 2vw, 1rem);
