@@ -173,6 +173,7 @@ header .spacer { flex: 1; }
 
 /* ---------- timeline wheel ---------- */
 .tlwrap {
+  position: relative;
   padding: .3rem 0; margin-bottom: .8rem;
   max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -190,6 +191,9 @@ header .spacer { flex: 1; }
 .rtype { font-size: .98rem; font-weight: 650; letter-spacing: -.012em; }
 .rmeta { font-size: .79rem; color: var(--muted); display: block; margin-top: .08rem; }
 .row.cur { padding-top: .8rem; padding-bottom: .8rem; }
+.row.prep { padding-top: .34rem; padding-bottom: .34rem; }
+.row.prep .rtype { font-size: .82rem; font-weight: 600; color: var(--muted); letter-spacing: .01em; }
+.row.prep .rmeta { font-size: .74rem; }
 .row.cur .rtype, .row.cur .rtime { color: var(--accent-ink); }
 .row.alarmed .rtime::after { content: " ●"; color: var(--amber); font-size: .6em; vertical-align: middle; }
 
@@ -465,9 +469,27 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
         var when = new Date(d.getFullYear(), d.getMonth(), d.getDate(),
                             parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
         if (sh) when = new Date(when.getTime() + sh * 60000);
+
+        // Actions flagged prep:true split off into their own block a few minutes
+        // earlier — diaper, clothes, bottle out — so the feed itself starts on time.
+        var acts = b.actions || [];
+        var prep = acts.filter(function (a) { return a.prep; });
+        var main = acts.filter(function (a) { return !a.prep; });
+        var pm = prepMin();
+        var hasPrep = prep.length > 0 && pm > 0;
+
+        if (hasPrep) {
+          out.push({
+            key: di + "#" + i + "p", when: new Date(when.getTime() - pm * 60000),
+            type: "PREP", alarm: !!b.alarm, actions: prep,
+            forType: b.type, forWhen: when
+          });
+        }
         out.push({
           key: di + "#" + i, when: when, type: b.type,
-          alarm: !!b.alarm, actions: b.actions || []
+          // the alarm moves to the prep block so you are woken with time to get ready
+          alarm: hasPrep ? false : !!b.alarm,
+          actions: main.length ? main : acts
         });
       });
     });
@@ -479,15 +501,24 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     var v = (CFG.targets && CFG.targets.perFeedMl) || [68, 90];
     return v[0] + "–" + v[1] + " mL";
   }
-  function typeName(t) { return t === "FULL" ? "Full feed" : "Bottle feed"; }
+  function prepMin() {
+    var p = CFG.targets && CFG.targets.prepMin;
+    return (p === 0 || p) ? p : 5;
+  }
+  function typeName(t) {
+    return t === "PREP" ? "Get ready" : (t === "FULL" ? "Full feed" : "Bottle feed");
+  }
+  function durOf(b) { return b.type === "PREP" ? prepMin() : (DUR[b.type] || 30); }
 
   // One-line summary for timeline rows, grouped per person so someone doing two
   // things reads as "Mom: breastfeed both sides then pump" rather than losing the pump.
   function summarise(b) {
     var order = [], byWho = {};
     (b.actions || []).forEach(function (a) {
-      if (a.tone) return;            // diaper, hydration and rest lines belong in the
-      var w = a.who;                 // detail list, not in the one-line row summary
+      // On a prep block every line IS the point, so keep them all. Elsewhere the
+      // diaper/hydration/rest lines belong in the detail list, not the row summary.
+      if (a.tone && b.type !== "PREP") return;
+      var w = a.who;
       if (!byWho[w]) { byWho[w] = []; order.push(w); }
       byWho[w].push(String(a.do).split(/[,.]/)[0].toLowerCase());
     });
@@ -523,11 +554,20 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       if (list[i].when <= now) cur = list[i];
       else { next = list[i]; break; }
     }
-    var inWindow = cur && ((now - cur.when) / 60000) < (DUR[cur.type] || 30);
+    var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
 
     /* --- NOW --- */
     var np = $("nowpanel");
-    if (inWindow) {
+    if (inWindow && cur.type === "PREP") {
+      var left = Math.max(0, Math.ceil((cur.forWhen - now) / 60000));
+      np.className = "now glass active";
+      $("noweyebrow").innerHTML = '<span class="gdot"></span>Get ready &middot; ' +
+        left + ' min to go';
+      $("nowtitle").textContent = "Get ready";
+      $("nowsub").textContent = typeName(cur.forType) + " at " + t12(cur.forWhen) +
+        ", target " + volText() + ".";
+      renderActs(cur);
+    } else if (inWindow) {
       np.className = "now glass active";
       $("noweyebrow").innerHTML = '<span class="gdot"></span>Right now &middot; started ' + esc(t12(cur.when));
       $("nowtitle").textContent = typeName(cur.type);
@@ -559,8 +599,9 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       } else {
         npx.className = "next glass" + (ms < 30 * 60000 ? " soon" : "");
         $("countdown").textContent = (h > 0 ? h + "h " : "") + m + "m";
+        var vol = next.type === "PREP" ? "" : " &middot; " + esc(volText());
         $("nextwhat").innerHTML = "<b>" + esc(t12(next.when)) + "</b> &middot; " +
-          esc(typeName(next.type)) + " &middot; " + esc(volText()) + "<br>" + esc(summarise(next));
+          esc(typeName(next.type)) + vol + "<br>" + esc(summarise(next));
       }
     } else {
       $("countdown").textContent = "—";
@@ -597,7 +638,8 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
           futN++;
           blur = Math.min(2.8, (futN - 1) * 1.15); op = Math.max(.26, 1 - (futN - 1) * .2);
         }
-        html += '<div class="row' + (isCur ? " cur" : "") + (b.alarm ? " alarmed" : "") +
+        html += '<div class="row' + (isCur ? " cur" : "") + (b.type === "PREP" ? " prep" : "") +
+                (b.alarm ? " alarmed" : "") +
                 '" style="filter:blur(' + blur.toFixed(2) + 'px);opacity:' + op.toFixed(2) + '">' +
                 '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
                 '<span><span class="rtype">' + esc(typeName(b.type)) + '</span>' +
@@ -605,8 +647,14 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       });
       if (!placed) html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
       w.innerHTML = html || '<div class="row"><span class="rmeta">No schedule loaded.</span></div>';
+      // Measure against the scroll container itself. offsetTop would be relative to the
+      // nearest positioned ancestor, which overshoots and scrolls "now" off-screen.
       var nl = w.querySelector(".nowline");
-      if (nl) w.scrollTop = Math.max(0, nl.offsetTop - w.clientHeight / 2 + nl.offsetHeight / 2);
+      if (nl) {
+        var delta = (nl.getBoundingClientRect().top - w.getBoundingClientRect().top)
+                  - w.clientHeight / 2 + nl.offsetHeight / 2;
+        w.scrollTop = Math.max(0, w.scrollTop + delta);
+      }
     } else {
       var nb = $("tlwrap").querySelector(".nowline b");
       if (nb) nb.textContent = "now " + t12(now);
@@ -662,7 +710,9 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
   }
   function startRinging(b) {
     ringing = b;
-    $("alarmtext").textContent = t12(b.when) + " — " + typeName(b.type).toLowerCase() + ". " + summarise(b) + ".";
+    $("alarmtext").textContent = b.type === "PREP"
+      ? "Up now — " + typeName(b.forType).toLowerCase() + " at " + t12(b.forWhen) + "."
+      : t12(b.when) + " — " + typeName(b.type).toLowerCase() + ".";
     $("alarmbar").className = "alarmbar on";
     beep();
     clearInterval(ringTimer);
