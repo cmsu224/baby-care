@@ -76,20 +76,34 @@ body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   transition: background-color .8s ease;
 }
-body.feed-active {
-  animation: bgpulse 3s ease-in-out infinite;
+
+/* Ambient breathing pulsing glow when feeding is active */
+body.feed-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 35%, transparent) 0%, color-mix(in srgb, var(--accent) 12%, transparent) 55%, transparent 85%);
+  animation: feedGlowPulse 2.8s ease-in-out infinite;
 }
-@keyframes bgpulse {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+@keyframes feedGlowPulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1.03);
+  }
 }
-:root[data-theme="dark"] body.feed-active,
-:root:not([data-theme="light"]) body.feed-active {
-  animation-name: bgpulse-dark;
-}
-@keyframes bgpulse-dark {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+:root[data-theme="dark"] body.feed-active::before,
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.feed-active::before {
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 42%, transparent) 0%, color-mix(in srgb, var(--accent) 18%, transparent) 60%, transparent 90%);
+  }
 }
 
 .wrap { max-width: 100%; margin: 0 auto; padding: .35rem .8rem 1.4rem; }
@@ -326,9 +340,20 @@ header .spacer { flex: 1; }
 /* ---------- now panel ---------- */
 .now { padding: 1.15rem 1.1rem; margin-bottom: .7rem; }
 .now.active {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
-              0 0 42px color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow: var(--shadow), 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent),
+              0 0 45px color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: cardPulse 2.8s ease-in-out infinite;
+}
+@keyframes cardPulse {
+  0%, 100% {
+    box-shadow: var(--shadow), 0 0 0 1.5px color-mix(in srgb, var(--accent) 30%, transparent),
+                0 0 24px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  50% {
+    box-shadow: var(--shadow), 0 0 0 3px color-mix(in srgb, var(--accent) 65%, transparent),
+                0 0 55px color-mix(in srgb, var(--accent) 42%, transparent);
+  }
 }
 .eyebrow {
   font-size: .66rem; letter-spacing: .13em; text-transform: uppercase;
@@ -342,7 +367,7 @@ header .spacer { flex: 1; }
 .now.active .nowtitle { color: var(--accent-ink); }
 .nowsub { margin: 0; color: var(--muted); font-size: .92rem; }
 
-/* action list */
+/* Action list */
 .acts { list-style: none; margin: .95rem 0 0; padding: 0; }
 .acts li {
   display: grid; grid-template-columns: 3.5rem 1fr; gap: .7rem;
@@ -366,6 +391,81 @@ header .spacer { flex: 1; }
 .acts li[data-tone="self"] .doing::before { background: var(--accent); }
 .acts li[data-tone="rest"] .doing::before { background: var(--faint); opacity: .5; }
 .doing { font-size: .96rem; line-height: 1.35; }
+
+/* ========== ACTIVE MODE: When stuff is happening RIGHT NOW ========== */
+body.now-active .hero-wrap {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: .45rem;
+}
+body.now-active .hero-clock {
+  padding: .35rem .8rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stroke);
+  width: 100%;
+  text-align: center;
+}
+body.now-active .hero-clock .hero-time {
+  font-size: clamp(1.8rem, 8.5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1;
+}
+body.now-active .hero-clock .hero-ampm {
+  font-size: clamp(.85rem, 3.5vw, 1.4rem);
+}
+body.now-active .hero-clock .hero-date {
+  display: none;
+}
+body.now-active .hero-next {
+  display: none !important;
+}
+
+/* Focused, bold Right Now panel */
+body.now-active .now.active {
+  padding: 1.35rem 1.25rem 1.45rem;
+  margin-bottom: .85rem;
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--accent) 8%, var(--glass));
+}
+body.now-active .now .eyebrow {
+  font-size: clamp(.75rem, 2.5vw, 1.05rem);
+  letter-spacing: .14em;
+  font-weight: 750;
+  margin-bottom: .25rem;
+}
+body.now-active .now .nowtitle {
+  font-size: clamp(2.3rem, 10vw, 4.4rem);
+  line-height: 1.02;
+  font-weight: 850;
+  letter-spacing: -.03em;
+  margin: .25rem 0 .15rem;
+}
+body.now-active .now .nowsub {
+  font-size: clamp(1.05rem, 4.2vw, 1.7rem);
+  color: var(--accent-ink);
+  font-weight: 650;
+  margin-bottom: .6rem;
+}
+body.now-active .now .acts {
+  margin-top: 1rem;
+}
+body.now-active .now .acts li {
+  grid-template-columns: clamp(3.8rem, 14vw, 5.5rem) 1fr;
+  gap: .8rem;
+  padding: .7rem 0;
+}
+body.now-active .now .who {
+  font-size: clamp(.75rem, 2.5vw, 1rem);
+  padding: .35rem .2rem;
+  letter-spacing: .08em;
+  border-radius: var(--r-xs);
+}
+body.now-active .now .doing {
+  font-size: clamp(1.05rem, 3.8vw, 1.6rem);
+  line-height: 1.35;
+  font-weight: 550;
+}
 
 /* ---------- old countdown (hidden, replaced by hero) ---------- */
 .next { display: none; }
@@ -896,7 +996,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     var clockEl = $("heroclock");
     if (!box || !timeEl || !clockEl) return;
 
-    if (window.matchMedia("(orientation: landscape) and (min-width: 500px)").matches) {
+    if (document.body.classList.contains("now-active") || window.matchMedia("(orientation: landscape) and (min-width: 500px)").matches) {
       timeEl.style.fontSize = "";
       if (ampmEl) ampmEl.style.fontSize = "";
       return;
@@ -930,6 +1030,18 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
     paintDim(now);
 
+    var cur = null, next = null, i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].when <= now) cur = list[i];
+      else { next = list[i]; break; }
+    }
+    var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
+
+    /* --- FEEDING & ACTIVE STATE TOGGLES --- */
+    var isFeedingActive = inWindow && (cur.type === "FULL" || cur.type === "BOTTLE");
+    document.body.classList.toggle("feed-active", isFeedingActive);
+    document.body.classList.toggle("now-active", inWindow);
+
     /* --- HERO CLOCK --- */
     $("herotime").textContent = ct[0];
     $("heroampm").textContent = ct[1] || "";
@@ -938,17 +1050,6 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
 
     var todayIso = iso(now), entry = dayEntry(todayIso);
     $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
-
-    var cur = null, next = null, i;
-    for (i = 0; i < list.length; i++) {
-      if (list[i].when <= now) cur = list[i];
-      else { next = list[i]; break; }
-    }
-    var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
-
-    /* --- FEED-ACTIVE PULSE --- */
-    var isFullFeedActive = inWindow && cur.type === "FULL";
-    document.body.classList.toggle("feed-active", isFullFeedActive);
 
     /* --- NOW --- */
     var np = $("nowpanel");
@@ -960,7 +1061,6 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       renderActs(cur);
     } else {
       np.className = "now glass";
-      document.body.classList.remove("feed-active");
       $("noweyebrow").innerHTML = "Right now";
       $("nowtitle").textContent = "Rest";
       $("nowsub").textContent = cur
