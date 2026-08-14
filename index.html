@@ -270,9 +270,50 @@ button.big { font-size: 1rem; font-weight: 650; min-height: 3.4rem; border-radiu
 .alarmbar p { margin: 0; flex: 1; font-weight: 650; color: var(--alert); font-size: .95rem; }
 .alarmbar button { border-color: color-mix(in srgb, var(--alert) 50%, transparent); color: var(--alert); }
 
+/* ---------- night dimming ----------
+   A browser cannot touch the phone's hardware brightness. So the device is left at max
+   and the board dims ITSELF with this overlay; the change light simply removes it. */
+#dimmer {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  background: #000; opacity: 0; transition: opacity .8s ease;
+}
+
+/* ---------- change light ---------- */
+.fab {
+  position: fixed; right: .85rem; z-index: 65;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  width: 4.6rem; height: 4.6rem; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .12rem; padding: 0; cursor: pointer;
+  font-size: .58rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink); background: var(--glass);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5); backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--paper) 55%, transparent);
+}
+.fab .bulb {
+  width: 1.15rem; height: 1.15rem; border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #FFF8E6, #FFD98A 62%, #E8A83C);
+  box-shadow: 0 0 10px color-mix(in srgb, #FFC864 70%, transparent);
+}
+.lightpanel {
+  position: fixed; inset: 0; z-index: 80; display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 2rem 1.5rem; cursor: pointer;
+  background: #FFFFFF; color: #16211F;
+}
+.lightpanel.on { display: flex; }
+.lightpanel .lp-h { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; margin: 0 0 .5rem; }
+.lightpanel .lp-b { font-size: 1rem; line-height: 1.5; max-width: 22rem; margin: 0 0 .5rem; color: #33403D; }
+.lightpanel .lp-w { font-size: .95rem; line-height: 1.5; max-width: 22rem; margin: .9rem 0 0;
+  color: #8A3A16; font-weight: 600; }
+.lightpanel .lp-t { margin-top: 2rem; font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700; color: #7C8886; }
+
 /* ---------- overlay ---------- */
 .ov {
-  position: fixed; inset: 0; z-index: 50; display: none; overflow-y: auto;
+  /* above the light button (65) so it cannot float over the text, below the light panel (80) */
+  position: fixed; inset: 0; z-index: 70; display: none; overflow-y: auto;
   background: radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%);
   padding: 1.1rem .9rem calc(2rem + env(safe-area-inset-bottom));
 }
@@ -331,6 +372,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     <button id="wakebtn" aria-pressed="true">Screen stays on</button>
     <button id="fsbtn">Full screen</button>
     <button id="themebtn">Theme: auto</button>
+    <button id="milkbtn">Milk &amp; bottles</button>
     <button class="flag" id="flagbtn">Red flags</button>
   </div>
 
@@ -345,6 +387,76 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
 <div class="alarmbar" id="alarmbar">
   <p id="alarmtext">Feed due</p>
   <button id="dismissbtn">Dismiss</button>
+</div>
+
+<div id="dimmer"></div>
+
+<button class="fab" id="fab" aria-label="Change light — full brightness">
+  <span class="bulb"></span>Light
+</button>
+
+<div class="lightpanel" id="lightpanel" role="dialog" aria-label="Change light">
+  <p class="lp-h">Diaper change</p>
+  <p class="lp-b">Front to back. Clean, dry, cream if he is red, then a fresh diaper.</p>
+  <p class="lp-b">This screen is deliberately plain white so the colour you see is the real one.</p>
+  <p class="lp-w">Yellow and seedy is normal. Call today for white, chalky or grey — or for red or black.</p>
+  <p class="lp-t">Tap anywhere to close</p>
+</div>
+
+<div class="ov" id="milkov">
+  <div class="inner">
+    <h2>Milk &amp; bottles</h2>
+
+    <div class="box do">
+      <h3>The rule that stops the waste</h3>
+      <p><strong>Warm only what you have, and let formula make up the rest.</strong> Breastmilk
+      is the scarce thing; formula is unlimited and mixes fresh every time. So the order is
+      breast &rarr; the small warmed portion &rarr; fresh formula up to target. Nothing precious
+      is ever poured away.</p>
+      <p><strong>Store in 60 mL portions, not big ones.</strong> You can only waste what you
+      thawed &mdash; so never thaw more than one feed's worth.</p>
+      <p><strong>Try him on fridge-cold or room-temperature milk.</strong> Warming is a
+      preference, not a requirement. If he takes it cool, the whole problem disappears and
+      2 AM gets far easier. Worth one try at a daytime feed.</p>
+    </div>
+
+    <div class="box watch">
+      <h3>How long it keeps</h3>
+      <ul>
+        <li>Freshly expressed, room temperature &mdash; <strong>4 hours</strong></li>
+        <li>Fridge &mdash; <strong>4 days</strong></li>
+        <li>Freezer &mdash; <strong>6 months</strong> is best, 12 months acceptable</li>
+        <li>Thawed in the fridge &mdash; <strong>24 hours</strong>. <strong>Never refreeze.</strong></li>
+        <li>Warmed but not yet offered &mdash; use within <strong>2 hours</strong></li>
+        <li><strong>Once he has drunk from the bottle &mdash; finish within 2 hours, then throw
+        the rest away</strong>, however much is left. His mouth put bacteria in it.</li>
+      </ul>
+    </div>
+
+    <div class="box do">
+      <h3>Warming</h3>
+      <ul>
+        <li>Bottle warmer, or stand the bottle in a mug of warm water for 5&ndash;10 minutes</li>
+        <li><strong>Never a microwave.</strong> Hot spots scald, and it destroys the antibodies</li>
+        <li><strong>Swirl, do not shake</strong></li>
+        <li>Test on the inside of your wrist &mdash; it should feel like nothing at all</li>
+        <li>Separated layers are normal. Swirling brings the fat back in.</li>
+      </ul>
+    </div>
+
+    <div class="box watch">
+      <h3>Formula</h3>
+      <ul>
+        <li>Ready-to-feed is safest under 2 months &mdash; powder is not sterile</li>
+        <li>If using powder: water boiled and cooled to about 70&deg;C / 158&deg;F, then cooled
+        quickly. Water first, then a level scoop.</li>
+        <li><strong>Never dilute to stretch it, never concentrate it to add calories</strong></li>
+        <li>Made up &mdash; 2 hours at room temperature, 24 hours in the fridge, 1 hour once he starts</li>
+      </ul>
+    </div>
+
+    <button class="wide big" id="milkclose">Close</button>
+  </div>
 </div>
 
 <div class="ov" id="flagov">
@@ -590,6 +702,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
 
     var ct = t12(now).split(" ");
     $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
+    paintDim(now);
 
     var todayIso = iso(now), entry = dayEntry(todayIso);
     $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
@@ -875,8 +988,55 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
   paintTheme();
 
   /* ---------- red flags ---------- */
-  $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; });
-  $("flagclose").addEventListener("click", function () { $("flagov").className = "ov"; window.scrollTo(0, 0); });
+  $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; paintDim(); });
+  $("milkclose").addEventListener("click", function () {
+    $("milkov").className = "ov"; window.scrollTo(0, 0); paintDim();
+  });
+
+  $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; paintDim(); });
+  $("flagclose").addEventListener("click", function () {
+    $("flagov").className = "ov"; window.scrollTo(0, 0); paintDim();
+  });
+
+  /* ---------- night dim + change light ----------
+     No browser can raise the phone's hardware brightness, so this works the other way
+     round: leave Android at maximum and let the board hold itself dim overnight. The
+     light button just lifts the dim, which is what "full bright" actually means here. */
+  var lightOn = false, lightTimer = null;
+
+  function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
+  function nightCfg() {
+    var n = CFG.night || {};
+    return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
+  }
+  function inNight(now) {
+    var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);
+    return f > t ? (m >= f || m < t) : (m >= f && m < t);
+  }
+  function paintDim(now) {
+    now = now || new Date();
+    // Never dim over an alarm or the red-flag list — those are the moments you must see.
+    var hide = lightOn || ringing ||
+               $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
+    $("dimmer").style.opacity = (!hide && inNight(now)) ? nightCfg().dim : 0;
+  }
+
+  function openLight() {
+    lightOn = true;
+    $("lightpanel").classList.add("on");
+    paintDim();
+    acquire();                                   // never let it sleep mid-change
+    clearTimeout(lightTimer);
+    lightTimer = setTimeout(closeLight, 240000); // 4 min, in case it is left on
+  }
+  function closeLight() {
+    lightOn = false;
+    $("lightpanel").classList.remove("on");
+    clearTimeout(lightTimer);
+    paintDim();
+  }
+  $("fab").addEventListener("click", openLight);
+  $("lightpanel").addEventListener("click", closeLight);
 
   /* ---------- schedule polling ---------- */
   function loadConfig() {
