@@ -30,6 +30,8 @@
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --r: 20px; --r-sm: 13px; --r-xs: 9px;
+
+  --pulse-bg: transparent;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -65,15 +67,32 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; padding: 0; height: 100%; }
 body {
-  background: radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
+  background: var(--pulse-bg, transparent), radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
   color: var(--ink);
   font-family: var(--sans);
   line-height: 1.45;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  transition: background-color .8s ease;
 }
-.wrap { max-width: 30rem; margin: 0 auto; padding: .35rem .8rem 1.4rem; }
+body.feed-active {
+  animation: bgpulse 3s ease-in-out infinite;
+}
+@keyframes bgpulse {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: color-mix(in srgb, var(--accent) 12%, transparent); }
+}
+:root[data-theme="dark"] body.feed-active,
+:root:not([data-theme="light"]) body.feed-active {
+  animation-name: bgpulse-dark;
+}
+@keyframes bgpulse-dark {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: color-mix(in srgb, var(--accent) 8%, transparent); }
+}
+
+.wrap { max-width: 100%; margin: 0 auto; padding: .35rem .8rem 1.4rem; }
 .num { font-variant-numeric: tabular-nums; }
 
 .glass {
@@ -85,16 +104,92 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* ========== HERO PANELS: clock + next up ========== */
+/* These two panels dominate the screen so they're visible across the room */
+.hero-wrap {
+  display: flex; flex-direction: column; gap: .5rem;
+  width: 100%; padding: 0 .4rem;
+  margin-bottom: .7rem;
+}
+
+.hero-clock {
+  width: 100%; text-align: center;
+  padding: .5rem 0;
+}
+.hero-clock .hero-time {
+  font-size: clamp(4rem, 22vw, 14rem);
+  font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em; line-height: .92;
+  color: var(--ink);
+}
+.hero-clock .hero-ampm {
+  font-size: clamp(1.2rem, 5vw, 3.5rem);
+  font-weight: 700; color: var(--muted);
+  margin-left: .15em; letter-spacing: -.01em;
+}
+.hero-clock .hero-date {
+  font-size: clamp(.7rem, 2.5vw, 1.4rem);
+  color: var(--faint); font-weight: 600;
+  margin-top: .15rem; letter-spacing: .02em;
+}
+
+.hero-next {
+  width: 100%; text-align: center;
+  padding: .6rem .8rem .7rem;
+}
+.hero-next .hero-label {
+  font-size: clamp(.6rem, 2vw, 1rem);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--faint); font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.hero-next .hero-countdown {
+  font-size: clamp(3rem, 16vw, 10rem);
+  font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em; line-height: .95;
+  margin: .1rem 0;
+}
+.hero-next .hero-what {
+  font-size: clamp(.8rem, 2.8vw, 1.6rem);
+  color: var(--muted); font-weight: 500;
+  margin: 0;
+}
+.hero-next .hero-what b { color: var(--ink); font-weight: 700; }
+.hero-next.soon .hero-countdown { color: var(--amber); }
+.hero-next.soon { border-color: color-mix(in srgb, var(--amber) 50%, transparent); }
+.hero-next.late .hero-countdown { color: var(--alert); }
+.hero-next.late {
+  border-color: color-mix(in srgb, var(--alert) 65%, transparent);
+  box-shadow: var(--shadow), 0 0 46px color-mix(in srgb, var(--alert) 26%, transparent);
+  animation: breathe 1.8s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100% { opacity: 1 } 50% { opacity: .78 } }
+@media (prefers-reduced-motion: reduce) { .hero-next.late { animation: none } body.feed-active { animation: none; } }
+
+/* Landscape: put clock and next-up side by side */
+@media (orientation: landscape) and (min-width: 500px) {
+  .hero-wrap {
+    flex-direction: row; gap: .6rem;
+    align-items: stretch;
+  }
+  .hero-clock, .hero-next { flex: 1; min-width: 0; }
+  .hero-clock {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .hero-clock .hero-time { font-size: clamp(3rem, 14vw, 11rem); }
+  .hero-clock .hero-ampm { font-size: clamp(1rem, 3.5vw, 2.5rem); }
+  .hero-next .hero-countdown { font-size: clamp(2.5rem, 12vw, 9rem); }
+  .hero-next {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+}
+
 /* ---------- header ---------- */
-header { display: flex; align-items: center; gap: .55rem; padding: .8rem .35rem .75rem; }
+header { display: flex; align-items: center; gap: .55rem; padding: .5rem .8rem .3rem; }
 .dayn { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
 .datestr { color: var(--muted); font-size: .84rem; }
 header .spacer { flex: 1; }
-.clocknow {
-  font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
-  letter-spacing: -.03em; line-height: 1; margin-left: .1rem;
-}
-.clocknow .ampm { font-size: .62em; font-weight: 600; color: var(--muted); margin-left: .12em; }
+.clocknow { display: none; }
 .dot { width: .44rem; height: .44rem; border-radius: 50%; background: var(--ok); flex: none; opacity: .9; }
 .dot.off { background: var(--amber); }
 
@@ -142,24 +237,8 @@ header .spacer { flex: 1; }
 .acts li[data-tone="rest"] .doing::before { background: var(--faint); opacity: .5; }
 .doing { font-size: .96rem; line-height: 1.35; }
 
-/* ---------- countdown ---------- */
-.next { padding: 1rem 1.1rem; margin-bottom: .8rem; }
-.next.soon { border-color: color-mix(in srgb, var(--amber) 50%, transparent); }
-.next.late {
-  border-color: color-mix(in srgb, var(--alert) 65%, transparent);
-  box-shadow: var(--shadow), 0 0 46px color-mix(in srgb, var(--alert) 26%, transparent);
-  animation: breathe 1.8s ease-in-out infinite;
-}
-@keyframes breathe { 0%,100% { opacity: 1 } 50% { opacity: .78 } }
-@media (prefers-reduced-motion: reduce) { .next.late { animation: none } }
-.countdown {
-  font-size: 3.1rem; line-height: 1; font-weight: 700; letter-spacing: -.045em;
-  font-variant-numeric: tabular-nums; margin: .35rem 0 .3rem;
-}
-.next.soon .countdown { color: var(--amber); }
-.next.late  .countdown { color: var(--alert); }
-.nextwhat { margin: 0; font-size: .94rem; color: var(--muted); }
-.nextwhat b { color: var(--ink); font-weight: 600; }
+/* ---------- old countdown (hidden, replaced by hero) ---------- */
+.next { display: none; }
 
 /* ---------- glowing now dot ---------- */
 .gdot {
@@ -178,24 +257,20 @@ header .spacer { flex: 1; }
 /* ---------- timeline wheel ---------- */
 .tlwrap {
   position: relative;
-  --bm: 1;                      /* 1 = full depth-of-field, 0 = everything sharp */
+  --bm: 1;
   padding: .3rem 0; margin-bottom: .8rem;
-  max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  max-height: 36vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
           mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
 }
 .tlwrap::-webkit-scrollbar { display: none; }
-/* While you are actually scrolling, drop the depth-of-field so the upcoming blocks
-   are readable. It eases back a few seconds after you stop. */
 .tlwrap.browsing { --bm: .1; }
 .tlwrap.browsing { mask-image: none; -webkit-mask-image: none; }
 .row {
   display: grid; grid-template-columns: 4.6rem 1fr; gap: .7rem;
   padding: .62rem 1.05rem; align-items: baseline;
   transform-origin: center left;
-  /* Per-row depth is set inline as --b/--o. The container scales both through --bm, so
-     scrolling the list can pull everything back into focus without re-rendering. */
   filter: blur(calc(var(--b, 0px) * var(--bm, 1)));
   opacity: calc(1 - (1 - var(--o, 1)) * var(--bm, 1));
   transition: filter .45s ease, opacity .45s ease;
@@ -204,9 +279,6 @@ header .spacer { flex: 1; }
 .rtype { font-size: .98rem; font-weight: 650; letter-spacing: -.012em; }
 .rmeta { font-size: .79rem; color: var(--muted); display: block; margin-top: .08rem; }
 .row.cur { padding-top: .8rem; padding-bottom: .8rem; }
-.row.prep { padding-top: .34rem; padding-bottom: .34rem; }
-.row.prep .rtype { font-size: .82rem; font-weight: 600; color: var(--muted); letter-spacing: .01em; }
-.row.prep .rmeta { font-size: .74rem; }
 .row.cur .rtype, .row.cur .rtime { color: var(--accent-ink); }
 .row.alarmed .rtime::after { content: " ●"; color: var(--amber); font-size: .6em; vertical-align: middle; }
 
@@ -270,9 +342,7 @@ button.big { font-size: 1rem; font-weight: 650; min-height: 3.4rem; border-radiu
 .alarmbar p { margin: 0; flex: 1; font-weight: 650; color: var(--alert); font-size: .95rem; }
 .alarmbar button { border-color: color-mix(in srgb, var(--alert) 50%, transparent); color: var(--alert); }
 
-/* ---------- night dimming ----------
-   A browser cannot touch the phone's hardware brightness. So the device is left at max
-   and the board dims ITSELF with this overlay; the change light simply removes it. */
+/* ---------- night dimming ---------- */
 #dimmer {
   position: fixed; inset: 0; z-index: 60; pointer-events: none;
   background: #000; opacity: 0; transition: opacity .8s ease;
@@ -312,7 +382,6 @@ button.big { font-size: 1rem; font-weight: 650; min-height: 3.4rem; border-radiu
 
 /* ---------- overlay ---------- */
 .ov {
-  /* above the light button (65) so it cannot float over the text, below the light panel (80) */
   position: fixed; inset: 0; z-index: 70; display: none; overflow-y: auto;
   background: radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%);
   padding: 1.1rem .9rem calc(2rem + env(safe-area-inset-bottom));
@@ -328,9 +397,11 @@ button.big { font-size: 1rem; font-weight: 650; min-height: 3.4rem; border-radiu
 .box.watch { border-left: 3px solid var(--amber); } .box.watch h3 { color: var(--amber); }
 footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--faint); line-height: 1.55; }
 
-@media (max-width: 22rem) {
-  .countdown { font-size: 2.5rem; }
-  .nowtitle { font-size: 1.7rem; }
+/* In landscape, shrink the detail panels so the hero panels stay dominant */
+@media (orientation: landscape) and (min-width: 500px) {
+  .now { padding: .8rem 1rem; }
+  .nowtitle { font-size: 1.5rem; }
+  .tlwrap { max-height: 28vh; }
 }
 </style>
 </head>
@@ -340,11 +411,22 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
 
   <header>
     <span class="dayn" id="dayn">&mdash;</span>
-    <span class="datestr" id="datestr"></span>
     <span class="spacer"></span>
     <span class="dot off" id="dot" title="schedule freshness"></span>
     <span class="clocknow" id="clock">&mdash;</span>
   </header>
+
+  <div class="hero-wrap">
+    <div class="hero-clock glass" id="heroclock">
+      <div><span class="hero-time" id="herotime">&mdash;</span><span class="hero-ampm" id="heroampm"></span></div>
+      <div class="hero-date" id="herodate"></div>
+    </div>
+    <div class="hero-next glass" id="heronext">
+      <div class="hero-label" id="herolabel">Next up</div>
+      <div class="hero-countdown" id="herocountdown">&mdash;</div>
+      <p class="hero-what" id="herowhat"></p>
+    </div>
+  </div>
 
   <section class="now glass" id="nowpanel">
     <span class="eyebrow" id="noweyebrow">Right now</span>
@@ -595,26 +677,12 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
                             parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
         if (sh) when = new Date(when.getTime() + sh * 60000);
 
-        // Actions flagged prep:true split off into their own block a few minutes
-        // earlier — diaper, clothes, bottle out — so the feed itself starts on time.
+        // Prep actions are merged into the main block — no separate PREP block.
         var acts = b.actions || [];
-        var prep = acts.filter(function (a) { return a.prep; });
-        var main = acts.filter(function (a) { return !a.prep; });
-        var pm = prepMin();
-        var hasPrep = prep.length > 0 && pm > 0;
-
-        if (hasPrep) {
-          out.push({
-            key: di + "#" + i + "p", when: new Date(when.getTime() - pm * 60000),
-            type: "PREP", alarm: !!b.alarm, actions: prep,
-            forType: b.type, forWhen: when
-          });
-        }
         out.push({
           key: di + "#" + i, when: when, type: b.type,
-          // the alarm moves to the prep block so you are woken with time to get ready
-          alarm: hasPrep ? false : !!b.alarm,
-          actions: main.length ? main : acts
+          alarm: !!b.alarm,
+          actions: acts
         });
       });
     });
@@ -631,18 +699,16 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     return (p === 0 || p) ? p : 5;
   }
   function typeName(t) {
-    return t === "PREP" ? "Get ready" : (t === "FULL" ? "Full feed" : "Bottle feed");
+    return t === "FULL" ? "Full feed" : "Bottle feed";
   }
-  function durOf(b) { return b.type === "PREP" ? prepMin() : (DUR[b.type] || 30); }
+  function durOf(b) { return DUR[b.type] || 30; }
 
   // One-line summary for timeline rows, grouped per person so someone doing two
   // things reads as "Mom: breastfeed both sides then pump" rather than losing the pump.
   function summarise(b) {
     var order = [], byWho = {};
     (b.actions || []).forEach(function (a) {
-      // On a prep block every line IS the point, so keep them all. Elsewhere the
-      // diaper/hydration/rest lines belong in the detail list, not the row summary.
-      if (a.tone && b.type !== "PREP") return;
+      if (a.tone) return;
       var w = a.who;
       if (!byWho[w]) { byWho[w] = []; order.push(w); }
       byWho[w].push(String(a.do).split(/[,.]/)[0].toLowerCase());
@@ -704,9 +770,13 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
     paintDim(now);
 
+    /* --- HERO CLOCK --- */
+    $("herotime").textContent = ct[0];
+    $("heroampm").textContent = ct[1] || "";
+    $("herodate").textContent = now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+
     var todayIso = iso(now), entry = dayEntry(todayIso);
     $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
-    $("datestr").textContent = now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 
     var cur = null, next = null, i;
     for (i = 0; i < list.length; i++) {
@@ -715,18 +785,13 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     }
     var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
 
+    /* --- FEED-ACTIVE PULSE --- */
+    var isFullFeedActive = inWindow && cur.type === "FULL";
+    document.body.classList.toggle("feed-active", isFullFeedActive);
+
     /* --- NOW --- */
     var np = $("nowpanel");
-    if (inWindow && cur.type === "PREP") {
-      var left = Math.max(0, Math.ceil((cur.forWhen - now) / 60000));
-      np.className = "now glass active";
-      $("noweyebrow").innerHTML = '<span class="gdot"></span>Get ready &middot; ' +
-        left + ' min to go';
-      $("nowtitle").textContent = "Get ready";
-      $("nowsub").textContent = typeName(cur.forType) + " at " + t12(cur.forWhen) +
-        ", target " + volText() + ".";
-      renderActs(cur);
-    } else if (inWindow) {
+    if (inWindow) {
       np.className = "now glass active";
       $("noweyebrow").innerHTML = '<span class="gdot"></span>Right now &middot; started ' + esc(t12(cur.when));
       $("nowtitle").textContent = typeName(cur.type);
@@ -734,6 +799,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       renderActs(cur);
     } else {
       np.className = "now glass";
+      document.body.classList.remove("feed-active");
       $("noweyebrow").innerHTML = "Right now";
       $("nowtitle").textContent = "Rest";
       $("nowsub").textContent = cur
@@ -743,29 +809,28 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       $("acts").innerHTML = "";
     }
 
-    /* --- NEXT ---
-       The board has no idea what actually happened, so it can never claim a feed was
-       missed. The one overdue state it genuinely knows is an unacknowledged alarm. */
-    var npx = $("nextpanel");
+    /* --- HERO NEXT --- */
+    var hn = $("heronext");
     if (next) {
       var ms = next.when - now;
       var h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
-      $("nexteyebrow").textContent = ringing ? "Feed due" : "Next up";
       if (ringing) {
-        npx.className = "next glass late";
-        $("countdown").textContent = Math.max(0, Math.round((now - ringing.when) / 60000)) + "m";
-        $("nextwhat").innerHTML = "Since the <b>" + esc(t12(ringing.when)) + "</b> alarm. Feed him.";
+        $("herolabel").textContent = "FEED DUE";
+        hn.className = "hero-next glass late";
+        $("herocountdown").textContent = "+" + Math.max(0, Math.round((now - ringing.when) / 60000)) + "m";
+        $("herowhat").innerHTML = "Since <b>" + esc(t12(ringing.when)) + "</b> — feed him now.";
       } else {
-        npx.className = "next glass" + (ms < 30 * 60000 ? " soon" : "");
-        $("countdown").textContent = (h > 0 ? h + "h " : "") + m + "m";
-        var vol = next.type === "PREP" ? "" : " &middot; " + esc(volText());
-        $("nextwhat").innerHTML = "<b>" + esc(t12(next.when)) + "</b> &middot; " +
-          esc(typeName(next.type)) + vol + "<br>" + esc(summarise(next));
+        $("herolabel").textContent = "NEXT UP";
+        hn.className = "hero-next glass" + (ms < 30 * 60000 ? " soon" : "");
+        $("herocountdown").textContent = (h > 0 ? h + "h " : "") + m + "m";
+        $("herowhat").innerHTML = "<b>" + esc(t12(next.when)) + "</b> &middot; " +
+          esc(typeName(next.type)) + " &middot; " + esc(volText());
       }
     } else {
-      $("countdown").textContent = "—";
-      $("nextwhat").textContent = "No more blocks scheduled.";
-      npx.className = "next glass";
+      $("herolabel").textContent = "NEXT UP";
+      $("herocountdown").textContent = "—";
+      $("herowhat").textContent = "No more blocks scheduled.";
+      hn.className = "hero-next glass";
     }
 
     /* --- TIMELINE (iOS-picker style: sharp at now, blurring away in both directions) --- */
@@ -779,7 +844,6 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
       var w = $("tlwrap"), html = "", placed = false, pastN = 0, futN = 0;
       var keptScroll = w.scrollTop;
 
-      // count past rows first so the oldest blurs the most
       var pastTotal = vis.filter(function (b) { return b.when <= now; }).length;
 
       vis.forEach(function (b) {
@@ -790,15 +854,15 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
         var isCur = cur && b.key === cur.key && inWindow;
         var blur, op;
         if (isCur) { blur = 0; op = 1; }
-        else if (b.when <= now) {                    // done: fades and blurs hardest
+        else if (b.when <= now) {
           pastN++;
           var d = pastTotal - pastN + 1;
           blur = Math.min(3.4, d * 1.5); op = Math.max(.2, .62 - d * .13);
-        } else {                                     // upcoming: next one stays sharp
+        } else {
           futN++;
           blur = Math.min(2.8, (futN - 1) * 1.15); op = Math.max(.26, 1 - (futN - 1) * .2);
         }
-        html += '<div class="row' + (isCur ? " cur" : "") + (b.type === "PREP" ? " prep" : "") +
+        html += '<div class="row' + (isCur ? " cur" : "") +
                 (b.alarm ? " alarmed" : "") +
                 '" style="--b:' + blur.toFixed(2) + 'px;--o:' + op.toFixed(2) + '">' +
                 '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
@@ -865,9 +929,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
   }
   function startRinging(b) {
     ringing = b;
-    $("alarmtext").textContent = b.type === "PREP"
-      ? "Up now — " + typeName(b.forType).toLowerCase() + " at " + t12(b.forWhen) + "."
-      : t12(b.when) + " — " + typeName(b.type).toLowerCase() + ".";
+    $("alarmtext").textContent = t12(b.when) + " — " + typeName(b.type).toLowerCase() + ".";
     $("alarmbar").className = "alarmbar on";
     beep();
     clearInterval(ringTimer);
