@@ -90,7 +90,11 @@ header { display: flex; align-items: center; gap: .55rem; padding: .8rem .35rem 
 .dayn { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
 .datestr { color: var(--muted); font-size: .84rem; }
 header .spacer { flex: 1; }
-.clocknow { font-size: 1.02rem; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.clocknow {
+  font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  letter-spacing: -.03em; line-height: 1; margin-left: .1rem;
+}
+.clocknow .ampm { font-size: .62em; font-weight: 600; color: var(--muted); margin-left: .12em; }
 .dot { width: .44rem; height: .44rem; border-radius: 50%; background: var(--ok); flex: none; opacity: .9; }
 .dot.off { background: var(--amber); }
 
@@ -174,6 +178,7 @@ header .spacer { flex: 1; }
 /* ---------- timeline wheel ---------- */
 .tlwrap {
   position: relative;
+  --bm: 1;                      /* 1 = full depth-of-field, 0 = everything sharp */
   padding: .3rem 0; margin-bottom: .8rem;
   max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -181,11 +186,19 @@ header .spacer { flex: 1; }
           mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
 }
 .tlwrap::-webkit-scrollbar { display: none; }
+/* While you are actually scrolling, drop the depth-of-field so the upcoming blocks
+   are readable. It eases back a few seconds after you stop. */
+.tlwrap.browsing { --bm: .1; }
+.tlwrap.browsing { mask-image: none; -webkit-mask-image: none; }
 .row {
   display: grid; grid-template-columns: 4.6rem 1fr; gap: .7rem;
   padding: .62rem 1.05rem; align-items: baseline;
   transform-origin: center left;
-  transition: filter .5s ease, opacity .5s ease;
+  /* Per-row depth is set inline as --b/--o. The container scales both through --bm, so
+     scrolling the list can pull everything back into focus without re-rendering. */
+  filter: blur(calc(var(--b, 0px) * var(--bm, 1)));
+  opacity: calc(1 - (1 - var(--o, 1)) * var(--bm, 1));
+  transition: filter .45s ease, opacity .45s ease;
 }
 .rtime { font-size: .84rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
 .rtype { font-size: .98rem; font-weight: 650; letter-spacing: -.012em; }
@@ -536,6 +549,38 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     }).join("");
   }
 
+  /* ---------- timeline focus ---------- */
+  // Scrolling the list means "I want to read ahead", so the depth-of-field drops away and
+  // the list stops re-centering. Both come back a few seconds after you stop touching it,
+  // so the next glance still lands on now.
+  var browsing = false, browseTimer = null, selfScroll = false;
+
+  function centerNow(smooth) {
+    var w = $("tlwrap"), nl = w.querySelector(".nowline");
+    if (!nl) return;
+    var delta = (nl.getBoundingClientRect().top - w.getBoundingClientRect().top)
+              - w.clientHeight / 2 + nl.offsetHeight / 2;
+    var top = Math.max(0, w.scrollTop + delta);
+    if (Math.abs(top - w.scrollTop) < 1) return;
+    selfScroll = true;                       // our own scroll must not re-arm browsing
+    if (smooth && w.scrollTo) w.scrollTo({ top: top, behavior: "smooth" });
+    else w.scrollTop = top;
+    setTimeout(function () { selfScroll = false; }, smooth ? 700 : 60);
+  }
+
+  function armBrowsing() {
+    if (selfScroll) return;
+    var w = $("tlwrap");
+    browsing = true;
+    w.classList.add("browsing");
+    clearTimeout(browseTimer);
+    browseTimer = setTimeout(function () {
+      browsing = false;
+      w.classList.remove("browsing");
+      centerNow(true);
+    }, 6000);
+  }
+
   /* ---------- render ---------- */
   var lastTlSig = "";
 
@@ -543,7 +588,8 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     var now = new Date();
     var list = instances(now);
 
-    $("clock").textContent = t12(now);
+    var ct = t12(now).split(" ");
+    $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
 
     var todayIso = iso(now), entry = dayEntry(todayIso);
     $("dayn").textContent = entry ? "Day " + entry.n : "Schedule";
@@ -618,6 +664,7 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
     if (sig !== lastTlSig) {
       lastTlSig = sig;
       var w = $("tlwrap"), html = "", placed = false, pastN = 0, futN = 0;
+      var keptScroll = w.scrollTop;
 
       // count past rows first so the oldest blurs the most
       var pastTotal = vis.filter(function (b) { return b.when <= now; }).length;
@@ -640,21 +687,16 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
         }
         html += '<div class="row' + (isCur ? " cur" : "") + (b.type === "PREP" ? " prep" : "") +
                 (b.alarm ? " alarmed" : "") +
-                '" style="filter:blur(' + blur.toFixed(2) + 'px);opacity:' + op.toFixed(2) + '">' +
+                '" style="--b:' + blur.toFixed(2) + 'px;--o:' + op.toFixed(2) + '">' +
                 '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
                 '<span><span class="rtype">' + esc(typeName(b.type)) + '</span>' +
                 '<span class="rmeta">' + esc(summarise(b)) + '</span></span></div>';
       });
       if (!placed) html += '<div class="nowline"><span class="gdot"></span><b>now ' + esc(t12(now)) + '</b><i></i></div>';
       w.innerHTML = html || '<div class="row"><span class="rmeta">No schedule loaded.</span></div>';
-      // Measure against the scroll container itself. offsetTop would be relative to the
-      // nearest positioned ancestor, which overshoots and scrolls "now" off-screen.
-      var nl = w.querySelector(".nowline");
-      if (nl) {
-        var delta = (nl.getBoundingClientRect().top - w.getBoundingClientRect().top)
-                  - w.clientHeight / 2 + nl.offsetHeight / 2;
-        w.scrollTop = Math.max(0, w.scrollTop + delta);
-      }
+      // Don't drag them back to "now" mid-read: innerHTML resets scroll, so put it back.
+      if (browsing) w.scrollTop = keptScroll;
+      else centerNow(false);
     } else {
       var nb = $("tlwrap").querySelector(".nowline b");
       if (nb) nb.textContent = "now " + t12(now);
@@ -790,8 +832,16 @@ footer { margin-top: 1.2rem; padding: 0 .35rem; font-size: .73rem; color: var(--
   });
   // Android drops the lock whenever the tab is backgrounded, so re-take it often.
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") { acquire(); lastTlSig = ""; render(); }
+    if (document.visibilityState === "visible") {
+      acquire();
+      clearTimeout(browseTimer);
+      browsing = false;
+      $("tlwrap").classList.remove("browsing");   // a fresh look always starts at now
+      lastTlSig = ""; render();
+    }
   });
+
+  $("tlwrap").addEventListener("scroll", armBrowsing, { passive: true });
   ["click", "touchstart"].forEach(function (ev) {
     document.addEventListener(ev, acquire, { passive: true });
   });
