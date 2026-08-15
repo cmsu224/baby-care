@@ -1058,6 +1058,24 @@
       backdrop-filter: blur(20px) saturate(1.5);
       border: 1px solid var(--stroke);
       box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--bg-2) 55%, transparent);
+      /* match the dimmer's fade so the two move together */
+      transition: transform .12s ease, opacity .8s ease;
+    }
+
+    /* The button sits above the dimmer so it stays findable in a dark room — which also
+       means it keeps full brightness while the rest of the board fades. That is glaring
+       at 2 AM, so dim it alongside everything else: enough to stop it burning your eyes,
+       not so much that you cannot find it. Pressing it brings it straight back up. */
+    .fab.dim {
+      opacity: .3;
+    }
+
+    .fab.dim .bulb {
+      box-shadow: none;
+    }
+
+    .fab.dim:active {
+      opacity: 1;
     }
 
     .fab .bulb {
@@ -1933,7 +1951,10 @@
         // Never dim over an alarm or the red-flag list — those are the moments you must see.
         var hide = lightOn || ringing ||
           $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
-        $("dimmer").style.opacity = (!hide && inNight(now)) ? nightCfg().dim : 0;
+        var dimming = !hide && inNight(now);
+        $("dimmer").style.opacity = dimming ? nightCfg().dim : 0;
+        // The light button floats above the dimmer, so it has to be dimmed on its own.
+        $("fab").classList.toggle("dim", dimming);
       }
 
       function openLight() {
