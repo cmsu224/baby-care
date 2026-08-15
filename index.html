@@ -33,8 +33,6 @@
       --r: 20px;
       --r-sm: 13px;
       --r-xs: 9px;
-
-      --pulse-bg: transparent;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -109,7 +107,9 @@
     }
 
     body {
-      background: var(--pulse-bg, transparent), radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
+      /* The colour must stay in the LAST background layer — a colour in any earlier
+         layer makes the whole shorthand invalid and the page paints no background. */
+      background: var(--bg-2) radial-gradient(125% 75% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 68%) fixed;
       color: var(--ink);
       font-family: var(--sans);
       line-height: 1.45;
