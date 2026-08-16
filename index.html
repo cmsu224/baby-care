@@ -1024,123 +1024,6 @@
       color: var(--alert);
     }
 
-    /* ---------- night dimming ---------- */
-    #dimmer {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      pointer-events: none;
-      background: #000;
-      opacity: 0;
-      transition: opacity .8s ease;
-    }
-
-    /* ---------- change light ---------- */
-    .fab {
-      position: fixed;
-      right: .85rem;
-      z-index: 65;
-      bottom: calc(1rem + env(safe-area-inset-bottom));
-      width: 4.6rem;
-      height: 4.6rem;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: .12rem;
-      padding: 0;
-      cursor: pointer;
-      font-size: .58rem;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--ink);
-      background: var(--glass);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      backdrop-filter: blur(20px) saturate(1.5);
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--bg-2) 55%, transparent);
-      /* match the dimmer's fade so the two move together */
-      transition: transform .12s ease, opacity .8s ease;
-    }
-
-    /* The button sits above the dimmer so it stays findable in a dark room — which also
-       means it keeps full brightness while the rest of the board fades. That is glaring
-       at 2 AM, so dim it alongside everything else: enough to stop it burning your eyes,
-       not so much that you cannot find it. Pressing it brings it straight back up. */
-    .fab.dim {
-      opacity: .3;
-    }
-
-    .fab.dim .bulb {
-      box-shadow: none;
-    }
-
-    .fab.dim:active {
-      opacity: 1;
-    }
-
-    .fab .bulb {
-      width: 1.15rem;
-      height: 1.15rem;
-      border-radius: 50%;
-      background: radial-gradient(circle at 38% 34%, #FFF8E6, #FFD98A 62%, #E8A83C);
-      box-shadow: 0 0 10px color-mix(in srgb, #FFC864 70%, transparent);
-    }
-
-    .lightpanel {
-      position: fixed;
-      inset: 0;
-      z-index: 80;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem 1.5rem;
-      cursor: pointer;
-      background: #FFFFFF;
-      color: #16211F;
-    }
-
-    .lightpanel.on {
-      display: flex;
-    }
-
-    .lightpanel .lp-h {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      margin: 0 0 .5rem;
-    }
-
-    .lightpanel .lp-b {
-      font-size: 1rem;
-      line-height: 1.5;
-      max-width: 22rem;
-      margin: 0 0 .5rem;
-      color: #33403D;
-    }
-
-    .lightpanel .lp-w {
-      font-size: .95rem;
-      line-height: 1.5;
-      max-width: 22rem;
-      margin: .9rem 0 0;
-      color: #8A3A16;
-      font-weight: 600;
-    }
-
-    .lightpanel .lp-t {
-      margin-top: 2rem;
-      font-size: .68rem;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #7C8886;
-    }
-
     /* ---------- overlay ---------- */
     .ov {
       position: fixed;
@@ -1300,20 +1183,6 @@
   <div class="alarmbar" id="alarmbar">
     <p id="alarmtext">Feed due</p>
     <button id="dismissbtn">Dismiss</button>
-  </div>
-
-  <div id="dimmer"></div>
-
-  <button class="fab" id="fab" aria-label="Change light — full brightness">
-    <span class="bulb"></span>Light
-  </button>
-
-  <div class="lightpanel" id="lightpanel" role="dialog" aria-label="Change light">
-    <p class="lp-h">Diaper change</p>
-    <p class="lp-b">Front to back. Clean, dry, cream if he is red, then a fresh diaper.</p>
-    <p class="lp-b">This screen is deliberately plain white so the colour you see is the real one.</p>
-    <p class="lp-w">Yellow and seedy is normal. Call today for white, chalky or grey — or for red or black.</p>
-    <p class="lp-t">Tap anywhere to close</p>
   </div>
 
   <div class="ov" id="milkov">
@@ -1665,7 +1534,6 @@
 
         var ct = t12(now).split(" ");
         $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
-        paintDim(now);
 
         var cur = null, next = null, i;
         for (i = 0; i < list.length; i++) {
@@ -1948,58 +1816,15 @@
       paintTheme();
 
       /* ---------- red flags ---------- */
-      $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; paintDim(); });
+      $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; });
       $("milkclose").addEventListener("click", function () {
-        $("milkov").className = "ov"; window.scrollTo(0, 0); paintDim();
+        $("milkov").className = "ov"; window.scrollTo(0, 0);
       });
 
-      $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; paintDim(); });
+      $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; });
       $("flagclose").addEventListener("click", function () {
-        $("flagov").className = "ov"; window.scrollTo(0, 0); paintDim();
+        $("flagov").className = "ov"; window.scrollTo(0, 0);
       });
-
-      /* ---------- night dim + change light ----------
-         No browser can raise the phone's hardware brightness, so this works the other way
-         round: leave Android at maximum and let the board hold itself dim overnight. The
-         light button just lifts the dim, which is what "full bright" actually means here. */
-      var lightOn = false, lightTimer = null;
-
-      function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
-      function nightCfg() {
-        var n = CFG.night || {};
-        return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
-      }
-      function inNight(now) {
-        var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);
-        return f > t ? (m >= f || m < t) : (m >= f && m < t);
-      }
-      function paintDim(now) {
-        now = now || new Date();
-        // Never dim over an alarm or the red-flag list — those are the moments you must see.
-        var hide = lightOn || ringing ||
-          $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
-        var dimming = !hide && inNight(now);
-        $("dimmer").style.opacity = dimming ? nightCfg().dim : 0;
-        // The light button floats above the dimmer, so it has to be dimmed on its own.
-        $("fab").classList.toggle("dim", dimming);
-      }
-
-      function openLight() {
-        lightOn = true;
-        $("lightpanel").classList.add("on");
-        paintDim();
-        acquire();                                   // never let it sleep mid-change
-        clearTimeout(lightTimer);
-        lightTimer = setTimeout(closeLight, 240000); // 4 min, in case it is left on
-      }
-      function closeLight() {
-        lightOn = false;
-        $("lightpanel").classList.remove("on");
-        clearTimeout(lightTimer);
-        paintDim();
-      }
-      $("fab").addEventListener("click", openLight);
-      $("lightpanel").addEventListener("click", closeLight);
 
       /* ---------- schedule polling ---------- */
       function loadConfig() {
