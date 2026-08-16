@@ -16,6 +16,11 @@
     "momExtraCal": 500,
     "removalsPerDay": 8
   },
+  "night": {
+    "from": "20:30",
+    "to": "07:00",
+    "dim": 0.62
+  },
   "profiles": {
     "catchup": {
       "label": "Catch-up",

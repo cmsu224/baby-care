@@ -1024,6 +1024,17 @@
       color: var(--alert);
     }
 
+    /* ---------- night dimming ---------- */
+    #dimmer {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      background: #000;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
     /* ---------- overlay ---------- */
     .ov {
       position: fixed;
@@ -1184,6 +1195,8 @@
     <p id="alarmtext">Feed due</p>
     <button id="dismissbtn">Dismiss</button>
   </div>
+
+  <div id="dimmer"></div>
 
   <div class="ov" id="milkov">
     <div class="inner">
@@ -1534,6 +1547,7 @@
 
         var ct = t12(now).split(" ");
         $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
+        paintDim(now);
 
         var cur = null, next = null, i;
         for (i = 0; i < list.length; i++) {
@@ -1816,15 +1830,36 @@
       paintTheme();
 
       /* ---------- red flags ---------- */
-      $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; });
+      $("milkbtn").addEventListener("click", function () { $("milkov").className = "ov on"; paintDim(); });
       $("milkclose").addEventListener("click", function () {
-        $("milkov").className = "ov"; window.scrollTo(0, 0);
+        $("milkov").className = "ov"; window.scrollTo(0, 0); paintDim();
       });
 
-      $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; });
+      $("flagbtn").addEventListener("click", function () { $("flagov").className = "ov on"; paintDim(); });
       $("flagclose").addEventListener("click", function () {
-        $("flagov").className = "ov"; window.scrollTo(0, 0);
+        $("flagov").className = "ov"; window.scrollTo(0, 0); paintDim();
       });
+
+      /* ---------- night dim ----------
+         No browser can raise the phone's hardware brightness, so this works the other way
+         round: leave Android at maximum and let the board hold itself dim overnight. */
+      function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
+      function nightCfg() {
+        var n = CFG.night || {};
+        return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
+      }
+      function inNight(now) {
+        var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);
+        return f > t ? (m >= f || m < t) : (m >= f && m < t);
+      }
+      function paintDim(now) {
+        now = now || new Date();
+        // Never dim over an alarm or the red-flag list — those are the moments you must see.
+        var hide = ringing ||
+          $("flagov").classList.contains("on") || $("milkov").classList.contains("on");
+        var dimming = !hide && inNight(now);
+        $("dimmer").style.opacity = dimming ? nightCfg().dim : 0;
+      }
 
       /* ---------- schedule polling ---------- */
       function loadConfig() {
