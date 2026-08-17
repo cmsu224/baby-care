@@ -872,6 +872,23 @@
       vertical-align: middle;
     }
 
+    /* The float feed. Its time is a label, not an instruction, so it is drawn as
+       provisional — dashed rule, tilde on the clock, so it never reads as "due". */
+    .row.onwake {
+      border-left: 2px dashed var(--muted);
+      padding-left: calc(1.05rem - 2px);
+    }
+
+    .row.onwake .rtime::before {
+      content: "~";
+      opacity: .65;
+    }
+
+    .row.onwake .rtype {
+      font-style: italic;
+      font-weight: 600;
+    }
+
     .nowline {
       display: flex;
       align-items: center;
@@ -1293,6 +1310,8 @@
           <li>Straining to urinate, or dribbling rather than streaming</li>
           <li>Inconsolable crying for hours that is unlike him</li>
           <li><strong>Not back to birth weight by day 14</strong>, or gaining under 20 g a day for two days running</li>
+          <li><strong>Fewer than 7 feeds in 24 hours</strong>, or a day total under 600 mL two days running</li>
+          <li><strong>More than one night feed slept through</strong>, or longer than 6 hours with no feed at all</li>
           <li>Any rash with blisters or fluid-filled spots</li>
           <li><strong>Anyone with a cold sore has been near him</strong></li>
           <li>Your gut says something is wrong. That counts. Say exactly that on the phone.</li>
@@ -1336,19 +1355,20 @@
       /* ---------- fallback schedule, so the board works before the first fetch ---------- */
       var CFG = {
         version: 0,
-        targets: { perFeedMl: [68, 90], feedsPerDay: 9, pumpsPerDay: 6, wetPerDay: 6, dirtyPerDay: 3, maxGapMin: 180 },
+        anchor: "08:00",
+        targets: { perFeedMl: [75, 90], dailyMinMl: 600, feedsPerDay: 8, pumpsPerDay: 6, wetPerDay: 6, dirtyPerDay: 3, maxGapMin: 180, nightRule: "on wake" },
+        night: { from: "22:00", to: "08:00", dim: 0.62 },
         profiles: {
-          catchup: {
-            label: "Catch-up", blocks: [
-              { t: "07:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "10:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "13:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "16:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "18:30", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "21:00", type: "BOTTLE", alarm: false, actions: [{ who: "Dad", do: "Bottle feed, paced" }, { who: "Mom", do: "Go to bed now.", tone: "rest" }] },
-              { t: "23:30", type: "BOTTLE", alarm: true, actions: [{ who: "Dad", do: "Bottle feed, paced" }] },
-              { t: "02:00", type: "FULL", alarm: true, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
-              { t: "04:30", type: "BOTTLE", alarm: true, actions: [{ who: "Mom", do: "Bottle feed, paced" }] }
+          wfh: {
+            label: "Dad working from home", blocks: [
+              { t: "08:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "11:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "14:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "17:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "20:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] },
+              { t: "23:00", type: "FULL", alarm: false, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Lights out. Dad has the next one.", tone: "rest" }] },
+              { t: "02:30", type: "ONWAKE", alarm: false, actions: [{ who: "Dad", do: "If he is asleep, leave him. Bottle when he wakes." }] },
+              { t: "05:00", type: "FULL", alarm: true, actions: [{ who: "Mom", do: "Breastfeed both sides, then top-up bottle" }, { who: "Mom", do: "Pump both sides, 15 min" }] }
             ]
           }
         },
@@ -1358,7 +1378,7 @@
       if (cached) { try { CFG = JSON.parse(cached); } catch (e) { } }
 
       /* ---------- helpers ---------- */
-      var DUR = { FULL: 55, BOTTLE: 25 };
+      var DUR = { FULL: 55, BOTTLE: 25, ONWAKE: 25 };
       var $ = function (id) { return document.getElementById(id); };
       function pad(n) { return (n < 10 ? "0" : "") + n; }
       function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
@@ -1423,8 +1443,12 @@
         var p = CFG.targets && CFG.targets.prepMin;
         return (p === 0 || p) ? p : 5;
       }
+      // ONWAKE is the one night feed he is allowed to sleep through. Its time is a label,
+      // not an instruction, so it must never read like a feed that is due.
       function typeName(t) {
-        return t === "FULL" ? "Full feed" : "Bottle feed";
+        if (t === "FULL") return "Full feed";
+        if (t === "ONWAKE") return "If he wakes";
+        return "Bottle feed";
       }
       function durOf(b) { return DUR[b.type] || 30; }
 
@@ -1543,6 +1567,7 @@
 
       function render() {
         var now = new Date();
+        clearShiftAtAnchor(now);    // before instances(), which reads the shift
         var list = instances(now);
         expireRinging(list, now);   // before anything paints, so a dead alarm never reaches the hero
 
@@ -1558,7 +1583,7 @@
         var inWindow = cur && ((now - cur.when) / 60000) < durOf(cur);
 
         /* --- FEEDING & ACTIVE STATE TOGGLES --- */
-        var isFeedingActive = inWindow && (cur.type === "FULL" || cur.type === "BOTTLE");
+        var isFeedingActive = inWindow && (cur.type === "FULL" || cur.type === "BOTTLE" || cur.type === "ONWAKE");
         document.body.classList.toggle("feed-active", isFeedingActive);
         document.body.classList.toggle("now-active", inWindow);
 
@@ -1576,7 +1601,9 @@
           np.className = "now glass active";
           $("noweyebrow").innerHTML = '<span class="gdot"></span>Right now &middot; started ' + esc(t12(cur.when));
           $("nowtitle").textContent = typeName(cur.type);
-          $("nowsub").textContent = "Target " + volText() + " this feed.";
+          $("nowsub").textContent = cur.type === "ONWAKE"
+            ? "If he is asleep, leave him. Feed when he wakes — " + volText() + "."
+            : "Target " + volText() + " this feed.";
           renderActs(cur);
         } else {
           np.className = "now glass";
@@ -1645,6 +1672,7 @@
             }
             html += '<div class="row' + (isCur ? " cur" : "") +
               (b.alarm ? " alarmed" : "") +
+              (b.type === "ONWAKE" ? " onwake" : "") +
               '" style="--b:' + blur.toFixed(2) + 'px;--o:' + op.toFixed(2) + '">' +
               '<span class="rtime">' + esc(t12(b.when)) + '</span>' +
               '<span><span class="rtype">' + esc(typeName(b.type)) + '</span>' +
@@ -1663,10 +1691,14 @@
         /* --- targets --- */
         var t = CFG.targets || {};
         $("targets").innerHTML =
-          '<span><b>' + (t.feedsPerDay || 9) + '</b> feeds a day</span>' +
+          '<span><b>' + (t.feedsPerDay || 8) + '</b> feeds a day</span>' +
           '<span><b>' + volText() + '</b> each</span>' +
+          // The floor, not the feed count, is what says the day was enough — a night he
+          // sleeps long costs a feed, and this is the number that has to survive it.
+          '<span>at least <b>' + (t.dailyMinMl || 600) + ' mL</b> a day</span>' +
           '<span><b>' + (t.pumpsPerDay || 6) + '</b> pumps</span>' +
-          '<span>max gap <b>' + Math.round((t.maxGapMin || 180) / 60) + 'h</b></span>' +
+          '<span>day gap <b>' + Math.round((t.maxGapMin || 180) / 60) + 'h</b></span>' +
+          '<span>night <b>' + (t.nightRule || "on wake") + '</b></span>' +
           '<span><b>' + (t.wetPerDay || 6) + '+</b> wet</span>' +
           '<span><b>' + (t.dirtyPerDay || 3) + '+</b> dirty</span>' +
           '<span>Mom <b>' + (t.momWaterL || 3) + ' L</b> water</span>' +
@@ -1677,7 +1709,7 @@
 
         if (get("bcbrd:theme", "auto") === "auto") {
           var hr = now.getHours();
-          document.documentElement.setAttribute("data-theme", (hr >= 19 || hr < 7) ? "dark" : "light");
+          document.documentElement.setAttribute("data-theme", (hr >= 22 || hr < 8) ? "dark" : "light");
         }
 
         checkAlarms(list, now);
@@ -1773,18 +1805,46 @@
         }, { passive: true });
       });
 
-      /* ---------- shift ---------- */
+      /* ---------- shift ----------
+         A late night runs late by more than half an hour. He is allowed to sleep through the
+         float, so it can land an hour or two past its label and drag the rest of the night
+         with it. Tapping accumulates 30 → 60 → 90 and then wraps back to none. */
+      var SHIFT_MAX = 90;
+
       function paintShift() {
         var s = shiftMin();
-        $("shiftbtn").textContent = s ? "Shifted +" + s + " min — reset" : "Running late — shift 30 min";
+        $("shiftbtn").textContent = s
+          ? "Shifted +" + s + " min — tap for " + (s >= SHIFT_MAX ? "none" : "+" + (s + 30))
+          : "Running late — shift 30 min";
         $("shiftbtn").setAttribute("aria-pressed", s ? "true" : "false");
       }
       $("shiftbtn").addEventListener("click", function () {
-        sset("bcbrd:shift", shiftMin() ? "0" : "30");
+        var s = shiftMin() + 30;
+        if (s > SHIFT_MAX) s = 0;
+        sset("bcbrd:shift", String(s));
+        sset("bcbrd:shiftAt", String(Date.now()));
         sset("bcbrd:fired", "");
         lastTlSig = ""; paintShift(); render();
       });
       paintShift();
+
+      /* The shift lives in sessionStorage, which on an always-on kiosk tab never expires. Left
+         alone it would carry last night's slide into today and quietly move the anchor feed —
+         the one that has to happen at a fixed time. So it clears itself the first time the
+         clock crosses the anchor: however the night went, the day restarts on schedule. */
+      function clearShiftAtAnchor(now) {
+        var at = parseInt(sget("bcbrd:shiftAt", "0"), 10) || 0;
+        if (!at || !shiftMin()) return;
+        var applied = new Date(at);
+        var due = addDays(applied, 0);                       // midnight of the day it was set
+        due = new Date(due.getTime() + hm(CFG.anchor || "08:00") * 60000);
+        if (due <= applied) due = new Date(due.getTime() + 86400000);
+        if (now < due) return;
+        sset("bcbrd:shift", "0");
+        sset("bcbrd:shiftAt", "0");
+        sset("bcbrd:fired", "");
+        lastTlSig = ""; paintShift();
+      }
 
       /* ---------- keep the screen on ---------- */
       var lock = null, wantLock = get("bcbrd:wake", "1") === "1";
@@ -1872,7 +1932,7 @@
       function hm(s) { var p = String(s).split(":"); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
       function nightCfg() {
         var n = CFG.night || {};
-        return { from: n.from || "21:00", to: n.to || "07:00", dim: (n.dim == null ? 0.62 : n.dim) };
+        return { from: n.from || "22:00", to: n.to || "08:00", dim: (n.dim == null ? 0.62 : n.dim) };
       }
       function inNight(now) {
         var n = nightCfg(), m = now.getHours() * 60 + now.getMinutes(), f = hm(n.from), t = hm(n.to);

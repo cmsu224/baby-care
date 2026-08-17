@@ -1,33 +1,35 @@
 {
-  "version": 9,
-  "updated": "2026-08-17",
+  "version": 10,
+  "updated": "2026-08-18",
+  "anchor": "08:00",
   "targets": {
     "perFeedMl": [
-      68,
+      75,
       90
     ],
-    "feedsPerDay": 9,
+    "dailyMinMl": 600,
+    "feedsPerDay": 8,
     "pumpsPerDay": 6,
     "wetPerDay": 6,
     "dirtyPerDay": 3,
     "maxGapMin": 180,
+    "nightRule": "on wake",
     "alarmMaxMin": 60,
     "prepMin": 5,
     "momWaterL": 3,
-    "momExtraCal": 500,
-    "removalsPerDay": 8
+    "momExtraCal": 500
   },
   "night": {
-    "from": "20:30",
-    "to": "07:00",
+    "from": "22:00",
+    "to": "08:00",
     "dim": 0.62
   },
   "profiles": {
-    "catchup": {
-      "label": "Catch-up",
+    "weekend": {
+      "label": "Both parents home",
       "blocks": [
         {
-          "t": "07:00",
+          "t": "08:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -65,11 +67,16 @@
               "who": "Dad",
               "do": "Vitamin D drops - 400 IU, once a day, easiest to remember now",
               "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "Yesterday's total into Huckleberry. Anything under 600 mL, say so out loud.",
+              "tone": "care"
             }
           ]
         },
         {
-          "t": "10:00",
+          "t": "11:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -107,7 +114,7 @@
           ]
         },
         {
-          "t": "13:00",
+          "t": "14:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -140,7 +147,7 @@
           ]
         },
         {
-          "t": "16:00",
+          "t": "17:00",
           "type": "BOTTLE",
           "alarm": false,
           "actions": [
@@ -176,7 +183,7 @@
           ]
         },
         {
-          "t": "18:30",
+          "t": "20:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -209,11 +216,16 @@
             {
               "who": "Mom",
               "do": "Pump 15 min, both sides"
+            },
+            {
+              "who": "Dad",
+              "do": "Last pass at the kitchen now. Nothing left to do at 11 PM but feed him and sleep.",
+              "tone": "care"
             }
           ]
         },
         {
-          "t": "21:00",
+          "t": "23:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -235,7 +247,7 @@
             },
             {
               "who": "Dad",
-              "do": "Top up by bottle to target, then settle him"
+              "do": "Top up by bottle to target. Give him the full 90 if he wants it - this is the feed that has to carry him."
             },
             {
               "who": "Dad",
@@ -244,7 +256,12 @@
             },
             {
               "who": "Dad",
-              "do": "Wash and sterilise everything now, not at 2 AM",
+              "do": "Wash and sterilise everything now, not in the middle of the night",
+              "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "No alarm after this one. He sleeps until he wakes, and the next feed is yours.",
               "tone": "care"
             },
             {
@@ -254,33 +271,49 @@
             },
             {
               "who": "Mom",
-              "do": "Go to bed now. You are off until 2:00 AM.",
+              "do": "Lights out by 11:30 PM. You are off until 5:00 AM - Dad has the next one.",
               "tone": "rest"
             }
           ]
         },
         {
-          "t": "23:30",
-          "type": "BOTTLE",
-          "alarm": true,
+          "t": "02:30",
+          "type": "ONWAKE",
+          "alarm": false,
           "actions": [
             {
               "who": "Dad",
-              "do": "Change only if soiled - not worth waking him fully",
+              "do": "Leave him if he is asleep - bottle to target when he wakes"
+            },
+            {
+              "who": "Dad",
+              "do": "This is the one he is allowed to sleep through. No alarm is set for it.",
               "tone": "care"
             },
             {
               "who": "Dad",
-              "do": "Bottle feed, paced. Dim light, no talking."
+              "do": "Paced bottle, dim light, no talking. Change only if soiled.",
+              "tone": "care"
             },
             {
               "who": "Dad",
-              "do": "Straight back down. Leave the bottles until morning."
+              "do": "Straight back down. Leave the bottles until morning.",
+              "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "If this ran late, tap Running late so the 5:00 AM feed moves with it",
+              "tone": "care"
+            },
+            {
+              "who": "Mom",
+              "do": "Sleep through this one. It is not yours.",
+              "tone": "rest"
             }
           ]
         },
         {
-          "t": "02:00",
+          "t": "05:00",
           "type": "FULL",
           "alarm": true,
           "actions": [
@@ -312,33 +345,8 @@
             },
             {
               "who": "Dad",
-              "do": "Hand over and sleep until 7:00 AM.",
+              "do": "Sleep through this one. You are back on at 8:00 AM.",
               "tone": "rest"
-            }
-          ]
-        },
-        {
-          "t": "04:30",
-          "type": "FULL",
-          "alarm": true,
-          "actions": [
-            {
-              "who": "Mom",
-              "do": "Change only if soiled",
-              "tone": "care"
-            },
-            {
-              "who": "Mom",
-              "do": "Latch him first - this window is worth the most for supply"
-            },
-            {
-              "who": "Mom",
-              "do": "Then top up by bottle to target. No pump, go back to sleep."
-            },
-            {
-              "who": "Mom",
-              "do": "Water again before you lie down",
-              "tone": "self"
             }
           ]
         }
@@ -348,7 +356,7 @@
       "label": "Dad working from home",
       "blocks": [
         {
-          "t": "07:00",
+          "t": "08:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -370,11 +378,16 @@
             },
             {
               "who": "Dad",
-              "do": "Top up by bottle before the work day"
+              "do": "Top up by bottle to target, then log in"
             },
             {
               "who": "Dad",
               "do": "Vitamin D drops - 400 IU, once a day",
+              "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "Yesterday's total into Huckleberry. Anything under 600 mL, say so out loud.",
               "tone": "care"
             },
             {
@@ -389,7 +402,7 @@
           ]
         },
         {
-          "t": "10:00",
+          "t": "11:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -422,7 +435,7 @@
           ]
         },
         {
-          "t": "13:00",
+          "t": "14:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -449,7 +462,7 @@
           ]
         },
         {
-          "t": "16:00",
+          "t": "17:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -467,14 +480,6 @@
             },
             {
               "who": "Mom",
-              "do": "Latch him first if you have it in you - optional, not a failure to skip"
-            },
-            {
-              "who": "Dad",
-              "do": "Bottle to target, whether or not she fed him first"
-            },
-            {
-              "who": "Mom",
               "do": "Breastfeed both sides, then top-up bottle to target"
             },
             {
@@ -489,7 +494,7 @@
           ]
         },
         {
-          "t": "18:30",
+          "t": "20:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -522,11 +527,16 @@
             {
               "who": "Mom",
               "do": "Pump 15 min, both sides"
+            },
+            {
+              "who": "Dad",
+              "do": "Last pass at the kitchen now. Nothing left to do at 11 PM but feed him and sleep.",
+              "tone": "care"
             }
           ]
         },
         {
-          "t": "21:00",
+          "t": "23:00",
           "type": "FULL",
           "alarm": false,
           "actions": [
@@ -548,7 +558,7 @@
             },
             {
               "who": "Dad",
-              "do": "Top up by bottle to target, then settle him"
+              "do": "Top up by bottle to target. Give him the full 90 if he wants it - this is the feed that has to carry him."
             },
             {
               "who": "Dad",
@@ -557,7 +567,12 @@
             },
             {
               "who": "Dad",
-              "do": "Wash and sterilise everything now, not at 2 AM",
+              "do": "Wash and sterilise everything now, not in the middle of the night",
+              "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "No alarm after this one. He sleeps until he wakes, and the next feed is yours.",
               "tone": "care"
             },
             {
@@ -567,33 +582,49 @@
             },
             {
               "who": "Mom",
-              "do": "Go to bed now. You are off until 2:00 AM.",
+              "do": "Lights out by 11:30 PM. You are off until 5:00 AM - Dad has the next one.",
               "tone": "rest"
             }
           ]
         },
         {
-          "t": "23:30",
-          "type": "BOTTLE",
-          "alarm": true,
+          "t": "02:30",
+          "type": "ONWAKE",
+          "alarm": false,
           "actions": [
             {
               "who": "Dad",
-              "do": "Change only if soiled - not worth waking him fully",
+              "do": "Leave him if he is asleep - bottle to target when he wakes"
+            },
+            {
+              "who": "Dad",
+              "do": "This is the one he is allowed to sleep through. No alarm is set for it.",
               "tone": "care"
             },
             {
               "who": "Dad",
-              "do": "Bottle feed, paced. Dim light, no talking."
+              "do": "Paced bottle, dim light, no talking. Change only if soiled.",
+              "tone": "care"
             },
             {
               "who": "Dad",
-              "do": "Straight back down. Leave the bottles until morning."
+              "do": "Straight back down. Leave the bottles until morning.",
+              "tone": "care"
+            },
+            {
+              "who": "Dad",
+              "do": "If this ran late, tap Running late so the 5:00 AM feed moves with it",
+              "tone": "care"
+            },
+            {
+              "who": "Mom",
+              "do": "Sleep through this one. It is not yours.",
+              "tone": "rest"
             }
           ]
         },
         {
-          "t": "02:00",
+          "t": "05:00",
           "type": "FULL",
           "alarm": true,
           "actions": [
@@ -625,33 +656,8 @@
             },
             {
               "who": "Dad",
-              "do": "Hand over and sleep until 7:00 AM.",
+              "do": "Sleep through this one. You are back on at 8:00 AM.",
               "tone": "rest"
-            }
-          ]
-        },
-        {
-          "t": "04:30",
-          "type": "FULL",
-          "alarm": true,
-          "actions": [
-            {
-              "who": "Mom",
-              "do": "Change only if soiled",
-              "tone": "care"
-            },
-            {
-              "who": "Mom",
-              "do": "Latch him first - this window is worth the most for supply"
-            },
-            {
-              "who": "Mom",
-              "do": "Then top up by bottle to target. No pump, go back to sleep."
-            },
-            {
-              "who": "Mom",
-              "do": "Water again before you lie down",
-              "tone": "self"
             }
           ]
         }
@@ -662,19 +668,19 @@
     {
       "date": "2026-08-14",
       "n": 11,
-      "profile": "catchup",
+      "profile": "weekend",
       "note": "Catch-up starts today. Offer the full amount every feed and let him leave what he does not want. Call the office and ask for a weight-only nurse check before Monday."
     },
     {
       "date": "2026-08-15",
       "n": 12,
-      "profile": "catchup",
+      "profile": "weekend",
       "note": "Both parents home. Nine feeds, no gap over 3 hours, day or night. Wake him if he sleeps through."
     },
     {
       "date": "2026-08-16",
       "n": 13,
-      "profile": "catchup",
+      "profile": "weekend",
       "note": "Last full day with both parents home. Weigh naked, same time, same scale. Write the number down for tomorrow."
     },
     {
@@ -687,43 +693,43 @@
       "date": "2026-08-18",
       "n": 15,
       "profile": "wfh",
-      "note": "Follow whatever volume the pediatrician set yesterday. If they raised it, this schedule needs updating."
+      "note": "New schedule starts today. Eight feeds, 75-90 mL each, day anchored at 8:00 AM. Read the 11:00 PM block before tonight."
     },
     {
       "date": "2026-08-19",
       "n": 16,
       "profile": "wfh",
-      "note": "Watch that the night feeds are still happening now that the work week has started."
+      "note": "First night with no alarm after 11:00 PM. Write down the time he actually woke - that number is the whole point of this week."
     },
     {
       "date": "2026-08-20",
       "n": 17,
       "profile": "wfh",
-      "note": "If he is gaining 20-30 g a day, the 4:30 AM feed can start to slide later. If not, hold the schedule."
+      "note": "Second reading. Do not judge the change on one night. Both of you in bed by 11:30 PM again."
     },
     {
       "date": "2026-08-21",
       "n": 18,
       "profile": "wfh",
-      "note": "Growth spurt window opens - he may want more than target for a few days. Give it to him."
+      "note": "Three wake times now. If they cluster, that is his real clock and the 2:30 AM label should move to match it."
     },
     {
       "date": "2026-08-22",
       "n": 19,
-      "profile": "catchup",
-      "note": "Weekend. Both parents home - use it to bank sleep, not to catch up on chores."
+      "profile": "weekend",
+      "note": "Weekend. Same times - his clock does not know it is Saturday. Use the extra hands to bank sleep, not to catch up on chores."
     },
     {
       "date": "2026-08-23",
       "n": 20,
-      "profile": "catchup",
-      "note": "Weekly weight check at home. Compare against last Sunday, not against yesterday."
+      "profile": "weekend",
+      "note": "Weekly naked weight, same time and same scale. Compare against last Sunday, not against yesterday."
     },
     {
       "date": "2026-08-24",
       "n": 21,
       "profile": "wfh",
-      "note": "Three weeks old. If weight is on track, talk to the pediatrician about dropping one pump."
+      "note": "Three weeks. Check the pumped volumes across the week - if they are trending down, the 6-hour night gap is the cause and it needs a pump at 11:00 PM."
     },
     {
       "date": "2026-08-25",
@@ -735,37 +741,121 @@
       "date": "2026-08-26",
       "n": 23,
       "profile": "wfh",
-      "note": "Check in on Mom, properly. Ask the question and wait for the real answer."
+      "note": "Growth spurt window is open - he may want more than 90 for a few days. Give it to him and stop worrying about the ceiling."
     },
     {
       "date": "2026-08-27",
       "n": 24,
       "profile": "wfh",
-      "note": "Steady state. This schedule only stays useful if it is still true - change it when it stops being."
+      "note": "Check in on Mom, properly. Ask the question and wait for the real answer."
     },
     {
       "date": "2026-08-28",
       "n": 25,
       "profile": "wfh",
-      "note": "If he is consistently over target and gaining well, this is the week to stretch the night gap."
+      "note": "Add up a full day in Huckleberry. Over 600 mL means eight feeds is working. Under it two days running means go back to nine."
     },
     {
       "date": "2026-08-29",
       "n": 26,
-      "profile": "catchup",
-      "note": "Weekend. Review the week in Huckleberry - are the nine feeds actually happening?"
+      "profile": "weekend",
+      "note": "Weekend. Whoever is more wrecked gets the long sleep tonight - swap the 2:30 AM feed if that is Dad."
     },
     {
       "date": "2026-08-30",
       "n": 27,
-      "profile": "catchup",
+      "profile": "weekend",
       "note": "Weekly naked weight. Expect roughly 150-210 g over the week."
     },
     {
       "date": "2026-08-31",
       "n": 28,
       "profile": "wfh",
-      "note": "Four weeks. Time to rebuild this schedule around who he is now rather than who he was at day 11."
+      "note": "Four weeks. Two weeks of wake times now - if he reliably goes past 3:00 AM, move the float later and stop pretending it is 2:30."
+    },
+    {
+      "date": "2026-09-01",
+      "n": 29,
+      "profile": "wfh",
+      "note": "Steady state. This schedule only stays useful if it is still true - change it when it stops being."
+    },
+    {
+      "date": "2026-09-02",
+      "n": 30,
+      "profile": "wfh",
+      "note": "One month. Latch is usually stronger by now - test whether he finishes a feed at the breast without the top-up."
+    },
+    {
+      "date": "2026-09-03",
+      "n": 31,
+      "profile": "wfh",
+      "note": "If the top-up is getting smaller at the daytime feeds, say so at the next visit. That is the thread that leads out of pumping."
+    },
+    {
+      "date": "2026-09-04",
+      "n": 32,
+      "profile": "wfh",
+      "note": "Nothing to change today. Check the diaper counts - 6 wet and 3 dirty is still the floor."
+    },
+    {
+      "date": "2026-09-05",
+      "n": 33,
+      "profile": "weekend",
+      "note": "Weekend. Bank sleep."
+    },
+    {
+      "date": "2026-09-06",
+      "n": 34,
+      "profile": "weekend",
+      "note": "Weekly naked weight. Five weeks of numbers now - look at the line, not the last point."
+    },
+    {
+      "date": "2026-09-07",
+      "n": 35,
+      "profile": "wfh",
+      "note": "Five weeks. If he is taking 90 at every feed and still rooting, it is time to raise the ceiling - ask, do not guess."
+    },
+    {
+      "date": "2026-09-08",
+      "n": 36,
+      "profile": "wfh",
+      "note": "Second night feed watch: is he still waking for the 5:00 AM, or is he sleeping past the alarm? That decides what changes next."
+    },
+    {
+      "date": "2026-09-09",
+      "n": 37,
+      "profile": "wfh",
+      "note": "Check in on Mom again. Six weeks is where the adrenaline runs out."
+    },
+    {
+      "date": "2026-09-10",
+      "n": 38,
+      "profile": "wfh",
+      "note": "Nothing scheduled. If the board and reality disagree, reality is right - edit the board."
+    },
+    {
+      "date": "2026-09-11",
+      "n": 39,
+      "profile": "wfh",
+      "note": "Add up a full day again. Compare against the 600 mL floor and against two weeks ago."
+    },
+    {
+      "date": "2026-09-12",
+      "n": 40,
+      "profile": "weekend",
+      "note": "Weekend. Same times."
+    },
+    {
+      "date": "2026-09-13",
+      "n": 41,
+      "profile": "weekend",
+      "note": "Weekly naked weight."
+    },
+    {
+      "date": "2026-09-14",
+      "n": 42,
+      "profile": "wfh",
+      "note": "Six weeks. Rebuild this schedule around who he is now rather than who he was at two weeks. Start with the wake times you wrote down."
     }
   ]
 }

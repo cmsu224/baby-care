@@ -3,7 +3,7 @@
    config.json is network-first so a pushed schedule change lands quickly,
    but falls back to the last cached copy rather than failing. */
 
-var CACHE_VERSION = "board-v9";
+var CACHE_VERSION = "board-v10";
 var SHELL = [
   "./",
   "./index.html",
