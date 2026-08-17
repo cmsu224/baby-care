@@ -1,6 +1,6 @@
 {
-  "version": 8,
-  "updated": "2026-08-14",
+  "version": 9,
+  "updated": "2026-08-17",
   "targets": {
     "perFeedMl": [
       68,
@@ -11,6 +11,7 @@
     "wetPerDay": 6,
     "dirtyPerDay": 3,
     "maxGapMin": 180,
+    "alarmMaxMin": 60,
     "prepMin": 5,
     "momWaterL": 3,
     "momExtraCal": 500,
