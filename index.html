@@ -1544,6 +1544,7 @@
       function render() {
         var now = new Date();
         var list = instances(now);
+        expireRinging(list, now);   // before anything paints, so a dead alarm never reaches the hero
 
         var ct = t12(now).split(" ");
         $("clock").innerHTML = esc(ct[0]) + '<span class="ampm">' + esc(ct[1] || "") + '</span>';
@@ -1722,6 +1723,24 @@
         $("alarmbar").className = "alarmbar";
         lastTlSig = "";
       }
+      function alarmCapMin() {
+        var c = CFG.targets && CFG.targets.alarmMaxMin;
+        return (c === 0 || c) ? c : 60;
+      }
+
+      /* A board that is never touched must not still be shouting about a feed from hours ago.
+         This does not claim to know whether he was fed — only that the moment has passed, so
+         the countdown goes back to pointing at the next one. Dismiss still works as before. */
+      function expireRinging(list, now) {
+        if (!ringing) return;
+        var stale = (now - ringing.when) / 60000 >= alarmCapMin();
+        for (var i = 0; i < list.length && !stale; i++) {
+          // a later block has come due, so this one is history whatever happened
+          if (list[i].when > ringing.when && list[i].when <= now) stale = true;
+        }
+        if (stale) stopRinging();
+      }
+
       function checkAlarms(list, now) {
         if (!armed || ringing) return;
         var fired = sget("bcbrd:fired", "").split(",");
@@ -1786,15 +1805,22 @@
         paintWake(); if (wantLock) { acquire(); } else { release(); }
       });
       // Android drops the lock whenever the tab is backgrounded, so re-take it often.
+      function resumeBoard() {
+        acquire();
+        clearTimeout(browseTimer);
+        browsing = false;
+        $("tlwrap").classList.remove("browsing");   // a fresh look always starts at now
+        lastTick = Date.now();
+        lastTlSig = ""; render();
+      }
       document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible") {
-          acquire();
-          clearTimeout(browseTimer);
-          browsing = false;
-          $("tlwrap").classList.remove("browsing");   // a fresh look always starts at now
-          lastTlSig = ""; render();
-        }
+        if (document.visibilityState === "visible") resumeBoard();
       });
+      // A tab left up for weeks gets frozen or bfcached, and neither reliably fires
+      // visibilitychange on Android, so catch every way the page can come back.
+      window.addEventListener("pageshow", resumeBoard);
+      window.addEventListener("focus", resumeBoard);
+      document.addEventListener("resume", resumeBoard);
 
       $("tlwrap").addEventListener("scroll", armBrowsing, { passive: true });
       ["click", "touchstart"].forEach(function (ev) {
@@ -1878,9 +1904,21 @@
       loadConfig();
       setInterval(loadConfig, 60000);
 
-      /* ---------- tick ---------- */
-      render();
-      setInterval(render, 1000);
+      /* ---------- tick ----------
+         setInterval is the wrong tool for a board that runs for weeks: Android throttles it to
+         once a minute in the background and stops it outright once the tab is frozen, and it
+         drifts off the second either way. So the tick re-arms itself onto the next second
+         boundary, and a gap longer than one tick means the page was asleep — repaint the lot
+         rather than trust anything still on screen. */
+      var lastTick = Date.now();
+      function tick() {
+        var t = Date.now();
+        if (Math.abs(t - lastTick) > 5000) lastTlSig = "";
+        lastTick = t;
+        render();
+        setTimeout(tick, 1000 - (Date.now() % 1000));
+      }
+      tick();
 
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
